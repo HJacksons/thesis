@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import logging
 import wandb
 import matplotlib.pyplot as plt
+import random
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,3 +41,19 @@ def plot_class_distribution(class_names, class_counts):
 
 counts = [len(os.listdir(f"{dataset_name}/{category}")) for category in classes]
 plot_class_distribution(classes, counts)
+
+# Visualise 3 random sample images from each class in the dataset with image size
+num_images = 3
+fig, axes = plt.subplots(len(classes), num_images, figsize=(10, 10))
+for i, category in enumerate(classes):
+    class_path = f"{dataset_name}/{category}"
+    class_images = os.listdir(class_path)
+    for j in range(num_images):
+        idx = random.randint(0, len(class_images) - 1)
+        img_path = f"{class_path}/{class_images[idx]}"
+        img = plt.imread(img_path)
+        axes[i, j].imshow(img)
+        axes[i, j].set_title(f"{category}\n{img.shape}")
+        axes[i, j].axis("off")
+plt.tight_layout()
+plt.show()
