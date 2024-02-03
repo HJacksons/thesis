@@ -1,3 +1,4 @@
+# List classes in the dataset and the number of images in each class and visualise samples from each class
 import os
 from dotenv import load_dotenv
 import logging
@@ -57,3 +58,4 @@ for i, category in enumerate(classes):
         axes[i, j].axis("off")
 plt.tight_layout()
 plt.show()
+
