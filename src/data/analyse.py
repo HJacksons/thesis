@@ -3,6 +3,7 @@ import random
 import logging
 import matplotlib.pyplot as plt
 from dotenv import load_dotenv
+from PIL import Image
 
 # Configure logging
 logging.basicConfig(
@@ -85,9 +86,39 @@ def visualize_sample_images(dataset_name, classes, num_images=3):
     plt.show()
 
 
+# Checking for corrupt files
+def find_corrupt_images(dataset_name):
+    corrupt_images = {}
+
+    for class_name in os.listdir(dataset_name):
+        class_path = os.path.join(dataset_name, class_name)
+        if os.path.isdir(class_path):
+            for filename in os.listdir(class_path):
+                file_path = os.path.join(class_path, filename)
+                try:
+                    with Image.open(file_path) as img:
+                        img.verify()
+                except (IOError, SyntaxError):
+                    if class_name not in corrupt_images:
+                        corrupt_images[class_name] = []
+                    corrupt_images[class_name].append(filename)
+
+    return corrupt_images
+
+
 # Main execution
 if __name__ == "__main__":
     classes, counts = list_classes_and_counts(dataset_name)
     if classes and counts:
         plot_class_distribution(classes, counts)
         visualize_sample_images(dataset_name, classes)
+        corrupt_images = find_corrupt_images(dataset_name)
+        # Reporting corrupt images
+        if corrupt_images:
+            logging.info("Found corrupt images in the following classes:")
+            for class_name, images in corrupt_images.items():
+                logging.info(f"{class_name}:")
+                for image in images:
+                    logging.info(f" - {image}")
+        else:
+            logging.info("No corrupt images found.")
