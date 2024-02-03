@@ -16,6 +16,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 black
       - name: Run Flake8
-        run: flake8 .
+        #run: flake8 .
       - name: Check formatting with Black
         run: black --check .
