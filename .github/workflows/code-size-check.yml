@@ -1,0 +1,13 @@
+name: Code Size Check
+
+on: [push, pull_request]
+
+jobs:
+  code-size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check Code Size
+        run: |
+          echo "Code size (in bytes):"
+          find . -name '*.py' | xargs cat | wc -c
