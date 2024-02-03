@@ -1,0 +1,13 @@
+name: Dead Link Checker
+
+on: [push, pull_request]
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Link Checker
+        run: npm install -g markdown-link-check
+      - name: Check Links in Markdown
+        run: markdown-link-check README.md
