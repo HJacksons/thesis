@@ -13,7 +13,7 @@ logging.basicConfig(
 
 def rename_images(directory: str, class_name: str):
     """
-    This function renames the images in the new plant dataset to a format consistent with potato dataset.
+    Rename the images in the new plant dataset to a format consistent with potato dataset.
     """
     try:
         for count, filename in enumerate(os.listdir(directory), start=1):
