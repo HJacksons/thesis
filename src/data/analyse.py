@@ -112,7 +112,10 @@ class DatasetAnalyser:
         return c_images
 
 
-if __name__ == "__main__":
+# TODO:  Add a function to remove corrupt images
+
+
+def main():
     analyser = DatasetAnalyser()
     classes, counts = analyser.list_classes_and_counts()
     if classes and counts:
@@ -128,3 +131,6 @@ if __name__ == "__main__":
                     logging.info(f" - {image}")
         else:
             logging.info("No corrupt images found.")
+
+
+# main()
