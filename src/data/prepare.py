@@ -18,3 +18,22 @@ if not dataset_path or not os.path.exists(dataset_path):
     exit(1)
 
 dataset_name = os.path.join(dataset_path, 'new-potato-leaf-diseases-dataset')
+
+# Dataset transformations
+data_transforms = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
+
+# Load dataset
+dataset = datasets.ImageFolder(dataset_name, transform=data_transforms)
+
+# Get targets/labels from the dataset
+targets = np.array([s[1] for s in dataset.samples])
+
+# Split the dataset into train, validation, and test sets
+train_indices, temp_indices = train_test_split(np.arange(len(targets)), test_size=0.3, random_state=42, stratify=targets)
+vali_indices, test_indices = train_test_split(temp_indices, test_size=0.5, random_state=42, stratify=targets[temp_indices])
+
+# Create subsets from the indices
+train_dataset = Subset(dataset, train_indices)
+vali_dataset = Subset(dataset, vali_indices)
+test_dataset = Subset(dataset, test_indices)
+
