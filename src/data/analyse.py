@@ -66,14 +66,14 @@ class DatasetAnalyser:
         plt.tight_layout()
         plt.show()
 
-    def visualize_sample_images(self, classes, num_images=3):
+    def visualize_sample_images(self, classes_, num_images=3):
         """
         Visualize random sample images from each class in the dataset.
         """
         fig, axes = plt.subplots(
-            len(classes), num_images, figsize=(15, len(classes) * 3)
+            len(classes_), num_images, figsize=(15, len(classes_) * 3)
         )
-        for i, category in enumerate(classes):
+        for i, category in enumerate(classes_):
             class_path = os.path.join(self.dataset, category)
             try:
                 class_images = os.listdir(class_path)
@@ -110,8 +110,6 @@ class DatasetAnalyser:
                         c_images[c_name].append(filename)
 
         return c_images
-
-    # Main execution
 
 
 if __name__ == "__main__":
