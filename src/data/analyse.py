@@ -113,24 +113,3 @@ class DatasetAnalyser:
 
 
 # TODO:  Add a function to remove corrupt images
-
-
-def main():
-    analyser = DatasetAnalyser()
-    classes, counts = analyser.list_classes_and_counts()
-    if classes and counts:
-        analyser.plot_class_distribution(classes, counts)
-        analyser.visualize_sample_images(classes)
-        corrupt_images = analyser.find_corrupt_images()
-        # Reporting corrupt images
-        if corrupt_images:
-            logging.info("Found corrupt images in the following classes:")
-            for class_name, images in corrupt_images.items():
-                logging.info(f"{class_name}:")
-                for image in images:
-                    logging.info(f" - {image}")
-        else:
-            logging.info("No corrupt images found.")
-
-
-# main()

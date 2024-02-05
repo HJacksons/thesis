@@ -104,9 +104,6 @@ class DatasetPreparer:
         # logging.info(f"Number of batches in the training set: {len(train_dl)}")
         # logging.info(f"Number of batches in the validation set: {len(vali_dl)}")
         # logging.info(f"Number of batches in the test set: {len(test_dl)}")
+        logging.info("Dataset preparation complete.")
 
         return train_dl, vali_dl, test_dl
-
-
-preparer = DatasetPreparer()
-train_loader, vali_loader, test_loader = preparer.prepare_dataset()
