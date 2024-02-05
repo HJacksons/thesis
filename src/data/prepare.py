@@ -8,7 +8,9 @@ from sklearn.model_selection import train_test_split
 from dotenv import load_dotenv
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S"
+)
 load_dotenv()
 
 # Load environment variables
@@ -21,7 +23,14 @@ RANDOM_SIZE = 42
 
 
 class DatasetPreparer:
-    def __init__(self, dataset=DATA, test_size=TEST_SIZE, vali_size=VALI_SIZE, random_size=RANDOM_SIZE, transform=None):
+    def __init__(
+        self,
+        dataset=DATA,
+        test_size=TEST_SIZE,
+        vali_size=VALI_SIZE,
+        random_size=RANDOM_SIZE,
+        transform=None,
+    ):
         self.dataset_name = dataset
         self.data_transforms = transforms.Compose(
             [transforms.Resize((256, 256)), transforms.ToTensor()]
@@ -35,17 +44,25 @@ class DatasetPreparer:
 
     def prepare_dataset(self):
         # Load dataset
-        dataset = datasets.ImageFolder(self.dataset_name, transform=self.data_transforms)
+        dataset = datasets.ImageFolder(
+            self.dataset_name, transform=self.data_transforms
+        )
 
         # Get targets/labels from the dataset
         targets = np.array([s[1] for s in dataset.samples])
 
         # Split the dataset into train, validation, and test sets
         train_indices, temp_indices = train_test_split(
-            np.arange(len(targets)), test_size=self.test_size, random_state=self.random_state, stratify=targets
+            np.arange(len(targets)),
+            test_size=self.test_size,
+            random_state=self.random_state,
+            stratify=targets,
         )
         vali_indices, test_indices = train_test_split(
-            temp_indices, test_size=self.vali_size, random_state=self.random_state, stratify=targets[temp_indices]
+            temp_indices,
+            test_size=self.vali_size,
+            random_state=self.random_state,
+            stratify=targets[temp_indices],
         )
 
         # Create subsets from the indices
