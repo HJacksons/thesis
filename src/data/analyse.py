@@ -2,8 +2,8 @@ import os
 import random
 import logging
 import matplotlib.pyplot as plt
-from dotenv import load_dotenv
 from PIL import Image
+import data_config
 
 # Configure logging
 logging.basicConfig(
@@ -12,18 +12,9 @@ logging.basicConfig(
     datefmt="%d-%b-%y %H:%M:%S",
 )
 
-# Load environment variables
-load_dotenv()
-dataset_path = os.getenv("DATASET_PATH")
-if not dataset_path or not os.path.exists(dataset_path):
-    logging.error("Dataset path is invalid or not found.")
-    exit(1)
-
-DATASET = os.path.join(dataset_path, "new-potato-leaf-diseases-dataset")
-
 
 class DatasetAnalyser:
-    def __init__(self, dataset_name=DATASET):
+    def __init__(self, dataset_name=data_config.DATA):
         self.dataset = dataset_name
 
     def list_classes_and_counts(self):
@@ -66,14 +57,14 @@ class DatasetAnalyser:
         plt.tight_layout()
         plt.show()
 
-    def visualize_sample_images(self, classes, num_images=3):
+    def visualize_sample_images(self, classes_, num_images=3):
         """
         Visualize random sample images from each class in the dataset.
         """
         fig, axes = plt.subplots(
-            len(classes), num_images, figsize=(15, len(classes) * 3)
+            len(classes_), num_images, figsize=(15, len(classes_) * 3)
         )
-        for i, category in enumerate(classes):
+        for i, category in enumerate(classes_):
             class_path = os.path.join(self.dataset, category)
             try:
                 class_images = os.listdir(class_path)
@@ -111,22 +102,5 @@ class DatasetAnalyser:
 
         return c_images
 
-    # Main execution
 
-
-if __name__ == "__main__":
-    analyser = DatasetAnalyser()
-    classes, counts = analyser.list_classes_and_counts()
-    if classes and counts:
-        analyser.plot_class_distribution(classes, counts)
-        analyser.visualize_sample_images(classes)
-        corrupt_images = analyser.find_corrupt_images()
-        # Reporting corrupt images
-        if corrupt_images:
-            logging.info("Found corrupt images in the following classes:")
-            for class_name, images in corrupt_images.items():
-                logging.info(f"{class_name}:")
-                for image in images:
-                    logging.info(f" - {image}")
-        else:
-            logging.info("No corrupt images found.")
+# TODO:  Add a function to remove corrupt images

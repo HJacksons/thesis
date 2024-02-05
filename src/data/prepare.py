@@ -5,30 +5,22 @@ import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, Subset
 from sklearn.model_selection import train_test_split
-from dotenv import load_dotenv
+from torch.utils.data import DataLoader
+import data_config
 import logging
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S"
 )
-load_dotenv()
-
-# Load environment variables
-DATASET_PATH = os.getenv("DATASET_PATH")
-if DATASET_PATH:
-    DATA = os.path.join(DATASET_PATH, "new-potato-leaf-diseases-dataset")
-TEST_SIZE = 0.3
-VALI_SIZE = 0.5
-RANDOM_SIZE = 42
 
 
 class DatasetPreparer:
     def __init__(
         self,
-        dataset=DATA,
-        test_size=TEST_SIZE,
-        vali_size=VALI_SIZE,
-        random_size=RANDOM_SIZE,
+        dataset=data_config.DATA,
+        test_size=data_config.TEST_SIZE,
+        vali_size=data_config.VALI_SIZE,
+        random_size=data_config.RANDOM_SIZE,
         transform=None,
     ):
         self.dataset_name = dataset
@@ -71,12 +63,37 @@ class DatasetPreparer:
         test_dataset = Subset(dataset, test_indices)
 
         # Print the number of samples in each set
-        logging.info(f"Number of samples in the training set: {len(train_dataset)}")
-        logging.info(f"Number of samples in the validation set: {len(vali_dataset)}")
-        logging.info(f"Number of samples in the test set: {len(test_dataset)}")
+        # logging.info(f"Number of samples in the training set: {len(train_dataset)}")
+        # logging.info(f"Number of samples in the validation set: {len(vali_dataset)}")
+        # logging.info(f"Number of samples in the test set: {len(test_dataset)}")
 
-        return train_dataset, vali_dataset, test_dataset
+        # Create data loaders
+        train_dl = DataLoader(
+            train_dataset,
+            batch_size=data_config.BATCH_SIZE,
+            shuffle=True,
+            num_workers=0,
+            pin_memory=True,
+        )
+        vali_dl = DataLoader(
+            vali_dataset,
+            batch_size=data_config.BATCH_SIZE,
+            shuffle=False,
+            num_workers=0,
+            pin_memory=True,
+        )
+        test_dl = DataLoader(
+            test_dataset,
+            batch_size=data_config.BATCH_SIZE,
+            shuffle=False,
+            num_workers=0,
+            pin_memory=True,
+        )
 
+        # Print the number of batches in each set
+        # logging.info(f"Number of batches in the training set: {len(train_dl)}")
+        # logging.info(f"Number of batches in the validation set: {len(vali_dl)}")
+        # logging.info(f"Number of batches in the test set: {len(test_dl)}")
+        logging.info("Dataset preparation complete.")
 
-preparer = DatasetPreparer()
-train_ds, vali_ds, test_ds = preparer.prepare_dataset()
+        return train_dl, vali_dl, test_dl
