@@ -6,31 +6,21 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, Subset
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
-from dotenv import load_dotenv
+import data_config
 import logging
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S"
 )
-load_dotenv()
-
-# Load environment variables
-DATASET_PATH = os.getenv("DATASET_PATH")
-if DATASET_PATH:
-    DATA = os.path.join(DATASET_PATH, "new-potato-leaf-diseases-dataset")
-TEST_SIZE = 0.3
-VALI_SIZE = 0.5
-RANDOM_SIZE = 42
-BATCH_SIZE = 32
 
 
 class DatasetPreparer:
     def __init__(
         self,
-        dataset=DATA,
-        test_size=TEST_SIZE,
-        vali_size=VALI_SIZE,
-        random_size=RANDOM_SIZE,
+        dataset=data_config.DATA,
+        test_size=data_config.TEST_SIZE,
+        vali_size=data_config.VALI_SIZE,
+        random_size=data_config.RANDOM_SIZE,
         transform=None,
     ):
         self.dataset_name = dataset
@@ -80,21 +70,21 @@ class DatasetPreparer:
         # Create data loaders
         train_dl = DataLoader(
             train_dataset,
-            batch_size=BATCH_SIZE,
+            batch_size=data_config.BATCH_SIZE,
             shuffle=True,
             num_workers=0,
             pin_memory=True,
         )
         vali_dl = DataLoader(
             vali_dataset,
-            batch_size=BATCH_SIZE,
+            batch_size=data_config.BATCH_SIZE,
             shuffle=False,
             num_workers=0,
             pin_memory=True,
         )
         test_dl = DataLoader(
             test_dataset,
-            batch_size=BATCH_SIZE,
+            batch_size=data_config.BATCH_SIZE,
             shuffle=False,
             num_workers=0,
             pin_memory=True,

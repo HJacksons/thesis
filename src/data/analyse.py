@@ -2,8 +2,8 @@ import os
 import random
 import logging
 import matplotlib.pyplot as plt
-from dotenv import load_dotenv
 from PIL import Image
+import data_config
 
 # Configure logging
 logging.basicConfig(
@@ -12,18 +12,9 @@ logging.basicConfig(
     datefmt="%d-%b-%y %H:%M:%S",
 )
 
-# Load environment variables
-load_dotenv()
-dataset_path = os.getenv("DATASET_PATH")
-if not dataset_path or not os.path.exists(dataset_path):
-    logging.error("Dataset path is invalid or not found.")
-    exit(1)
-
-DATASET = os.path.join(dataset_path, "new-potato-leaf-diseases-dataset")
-
 
 class DatasetAnalyser:
-    def __init__(self, dataset_name=DATASET):
+    def __init__(self, dataset_name=data_config.DATA):
         self.dataset = dataset_name
 
     def list_classes_and_counts(self):
