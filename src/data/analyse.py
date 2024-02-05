@@ -45,7 +45,9 @@ class DatasetAnalyser:
             try:
                 class_images = os.listdir(class_path)
                 counts.append(len(class_images))
-                logging.info(f"Number of images in {category} class: {len(class_images)}")
+                logging.info(
+                    f"Number of images in {category} class: {len(class_images)}"
+                )
             except FileNotFoundError:
                 logging.error(f"Failed to list images in class: {category}")
 
@@ -68,7 +70,9 @@ class DatasetAnalyser:
         """
         Visualize random sample images from each class in the dataset.
         """
-        fig, axes = plt.subplots(len(classes), num_images, figsize=(15, len(classes) * 3))
+        fig, axes = plt.subplots(
+            len(classes), num_images, figsize=(15, len(classes) * 3)
+        )
         for i, category in enumerate(classes):
             class_path = os.path.join(self.dataset, category)
             try:
