@@ -9,34 +9,42 @@ logging.basicConfig(
     datefmt="%d-%b-%y %H:%M:%S",
     filename="rename_images.log",
 )
-
-
-def rename_images(directory: str, class_name: str):
-    """
-    Rename the images in the new plant dataset to a format consistent with potato dataset.
-    """
-    try:
-        for count, filename in enumerate(os.listdir(directory), start=1):
-            dst = f"{class_name}_{str(count).zfill(4)}.jpg"
-            src = os.path.join(directory, filename)
-            dst = os.path.join(directory, dst)
-
-            os.rename(src, dst)
-            logging.info(f"Renamed {src} to {dst}")
-    except Exception as e:
-        logging.error(f"Error occurred while renaming files in {directory}: {e}")
-
-
 load_dotenv()
 earlyBlight_path = os.getenv("EARLY_BLIGHT_PATH")
 lateBlight_path = os.getenv("LATE_BLIGHT_PATH")
 healthy_path = os.getenv("HEALTHY_PATH")
 
+
+class DatasetRenamer:
+    def __init__(self, directory, class_name):
+        self.directory = directory
+        self.class_name = class_name
+
+    def rename_images(self):
+        """
+        This function renames the images in the new plant dataset to a format consistent with potato dataset.
+        """
+        try:
+            for count, filename in enumerate(os.listdir(self.directory), start=1):
+                dst = f"{self.class_name}_{str(count).zfill(4)}.jpg"
+                src = os.path.join(self.directory, filename)
+                dst = os.path.join(self.directory, dst)
+
+                os.rename(src, dst)
+                logging.info(f"Renamed {src} to {dst}")
+        except Exception as e:
+            logging.error(
+                f"Error occurred while renaming files in {self.directory}: {e}"
+            )
+
+
 # Confirm env path and rename images
 if earlyBlight_path and lateBlight_path and healthy_path:
-    rename_images(earlyBlight_path, "EarlyBlight")
-    rename_images(lateBlight_path, "LateBlight")
-    rename_images(healthy_path, "Healthy")
-    logging.info("Images renamed successfully.")
+    renamer1 = DatasetRenamer(earlyBlight_path, "EarlyBlight")
+    renamer1.rename_images()
+    renamer2 = DatasetRenamer(lateBlight_path, "LateBlight")
+    renamer2.rename_images()
+    renamer3 = DatasetRenamer(healthy_path, "Healthy")
+    renamer3.rename_images()
 else:
     logging.error("One or more environment variables are not set.")

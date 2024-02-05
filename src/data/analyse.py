@@ -19,100 +19,108 @@ if not dataset_path or not os.path.exists(dataset_path):
     logging.error("Dataset path is invalid or not found.")
     exit(1)
 
-dataset_name = os.path.join(dataset_path, "new-potato-leaf-diseases-dataset")
+DATASET = os.path.join(dataset_path, "new-potato-leaf-diseases-dataset")
 
 
-def list_classes_and_counts(dataset_name):
-    """
-    List classes in the dataset and the number of images in each class.
-    """
-    try:
-        classes = os.listdir(dataset_name)
-    except FileNotFoundError:
-        logging.error(f"Failed to list classes in the dataset: {dataset_name}")
-        return None, None
+class DatasetAnalyser:
+    def __init__(self, dataset_name=DATASET):
+        self.dataset = dataset_name
 
-    logging.info(f"Classes in the dataset: {classes}")
-    logging.info(f"Number of classes in the dataset: {len(classes)}")
-
-    counts = []
-    for category in classes:
-        class_path = os.path.join(dataset_name, category)
+    def list_classes_and_counts(self):
+        """
+        List classes in the dataset and the number of images in each class.
+        """
         try:
-            class_images = os.listdir(class_path)
-            counts.append(len(class_images))
-            logging.info(f"Number of images in {category} class: {len(class_images)}")
+            classes = os.listdir(self.dataset)
         except FileNotFoundError:
-            logging.error(f"Failed to list images in class: {category}")
+            logging.error(f"Failed to list classes in the dataset: {self.dataset}")
+            return None, None
 
-    return classes, counts
+        logging.info(f"Classes in the dataset: {classes}")
+        logging.info(f"Number of classes in the dataset: {len(classes)}")
+
+        counts = []
+        for category in classes:
+            class_path = os.path.join(self.dataset, category)
+            try:
+                class_images = os.listdir(class_path)
+                counts.append(len(class_images))
+                logging.info(
+                    f"Number of images in {category} class: {len(class_images)}"
+                )
+            except FileNotFoundError:
+                logging.error(f"Failed to list images in class: {category}")
+
+        return classes, counts
+
+    def plot_class_distribution(self, class_names, class_counts):
+        """
+        Plot class-wise distribution of images.
+        """
+        plt.figure(figsize=(10, 5))
+        plt.bar(class_names, class_counts, color="skyblue")
+        plt.title("Class-wise Distribution of Images")
+        plt.xlabel("Classes")
+        plt.ylabel("Number of Images")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+
+    def visualize_sample_images(self, classes, num_images=3):
+        """
+        Visualize random sample images from each class in the dataset.
+        """
+        fig, axes = plt.subplots(
+            len(classes), num_images, figsize=(15, len(classes) * 3)
+        )
+        for i, category in enumerate(classes):
+            class_path = os.path.join(self.dataset, category)
+            try:
+                class_images = os.listdir(class_path)
+                for j in range(num_images):
+                    idx = random.randint(0, len(class_images) - 1)
+                    img_path = os.path.join(class_path, class_images[idx])
+                    img = plt.imread(img_path)
+                    axes[i, j].imshow(img)
+                    axes[i, j].set_title(f"{category}\n{img.shape}")
+                    axes[i, j].axis("off")
+            except FileNotFoundError:
+                logging.error(f"Failed to load images from class: {category}")
+                continue
+
+        plt.tight_layout()
+        plt.show()
+
+        # Checking for corrupt files
+
+    def find_corrupt_images(self):
+        c_images = {}
+
+        for c_name in os.listdir(self.dataset):
+            class_path = os.path.join(self.dataset, c_name)
+            if os.path.isdir(class_path):
+                for filename in os.listdir(class_path):
+                    file_path = os.path.join(class_path, filename)
+                    try:
+                        with Image.open(file_path) as img:
+                            img.verify()
+                    except (IOError, SyntaxError):
+                        if c_name not in c_images:
+                            c_images[c_name] = []
+                        c_images[c_name].append(filename)
+
+        return c_images
+
+    # Main execution
 
 
-def plot_class_distribution(class_names, class_counts):
-    """
-    Plot class-wise distribution of images.
-    """
-    plt.figure(figsize=(10, 5))
-    plt.bar(class_names, class_counts, color="skyblue")
-    plt.title("Class-wise Distribution of Images")
-    plt.xlabel("Classes")
-    plt.ylabel("Number of Images")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-
-def visualize_sample_images(dataset_name, classes, num_images=3):
-    """
-    Visualize random sample images from each class in the dataset.
-    """
-    fig, axes = plt.subplots(len(classes), num_images, figsize=(15, len(classes) * 3))
-    for i, category in enumerate(classes):
-        class_path = os.path.join(dataset_name, category)
-        try:
-            class_images = os.listdir(class_path)
-            for j in range(num_images):
-                idx = random.randint(0, len(class_images) - 1)
-                img_path = os.path.join(class_path, class_images[idx])
-                img = plt.imread(img_path)
-                axes[i, j].imshow(img)
-                axes[i, j].set_title(f"{category}\n{img.shape}")
-                axes[i, j].axis("off")
-        except FileNotFoundError:
-            logging.error(f"Failed to load images from class: {category}")
-            continue
-
-    plt.tight_layout()
-    plt.show()
-
-
-# Checking for corrupt files
-def find_corrupt_images(dataset_name):
-    corrupt_images = {}
-
-    for class_name in os.listdir(dataset_name):
-        class_path = os.path.join(dataset_name, class_name)
-        if os.path.isdir(class_path):
-            for filename in os.listdir(class_path):
-                file_path = os.path.join(class_path, filename)
-                try:
-                    with Image.open(file_path) as img:
-                        img.verify()
-                except (IOError, SyntaxError):
-                    if class_name not in corrupt_images:
-                        corrupt_images[class_name] = []
-                    corrupt_images[class_name].append(filename)
-
-    return corrupt_images
-
-
-# Main execution
 if __name__ == "__main__":
-    classes, counts = list_classes_and_counts(dataset_name)
+    analyser = DatasetAnalyser()
+    classes, counts = analyser.list_classes_and_counts()
     if classes and counts:
-        plot_class_distribution(classes, counts)
-        visualize_sample_images(dataset_name, classes)
-        corrupt_images = find_corrupt_images(dataset_name)
+        analyser.plot_class_distribution(classes, counts)
+        analyser.visualize_sample_images(classes)
+        corrupt_images = analyser.find_corrupt_images()
         # Reporting corrupt images
         if corrupt_images:
             logging.info("Found corrupt images in the following classes:")
