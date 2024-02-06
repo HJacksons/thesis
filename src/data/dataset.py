@@ -29,3 +29,6 @@ if __name__ == "__main__":
                     logging.info(f" - {image}")
         else:
             logging.info("No corrupt images found.")
+
+        # Remove corrupt images
+        analyser.remove_corrupt_images(corrupt_images)
