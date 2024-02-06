@@ -24,8 +24,15 @@ optimizer = optim.Adam(model.parameters(), lr=data_config.LEARNING_RATE)
 
 
 class Trainer:
-    def __init__(self, model_, train_dl=train_loader, vali_dl=vali_loader, criteria=criterion, optima=optimizer,
-                 epochs=data_config.EPOCHS):
+    def __init__(
+        self,
+        model_,
+        train_dl=train_loader,
+        vali_dl=vali_loader,
+        criteria=criterion,
+        optima=optimizer,
+        epochs=data_config.EPOCHS,
+    ):
         self.model = model_
         self.train_loader = train_dl
         self.vali_loader = vali_dl
@@ -78,7 +85,12 @@ class Trainer:
         # Initialize a new wandb run
         wandb.init(project="your_project_name", entity="your_wandb_username")
 
-        history = {'train_loss': [], 'train_accuracy': [], 'val_loss': [], 'val_accuracy': []}
+        history = {
+            "train_loss": [],
+            "train_accuracy": [],
+            "val_loss": [],
+            "val_accuracy": [],
+        }
 
         for epoch in range(self.epochs):
             print(f"Epoch {epoch + 1} of {self.epochs}")
@@ -86,16 +98,25 @@ class Trainer:
             val_loss, val_accuracy = self.validate_epoch()
 
             print(f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
-            print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+            print(
+                f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}"
+            )
 
-            history['train_loss'].append(train_loss)
-            history['train_accuracy'].append(train_accuracy)
-            history['val_loss'].append(val_loss)
-            history['val_accuracy'].append(val_accuracy)
+            history["train_loss"].append(train_loss)
+            history["train_accuracy"].append(train_accuracy)
+            history["val_loss"].append(val_loss)
+            history["val_accuracy"].append(val_accuracy)
 
             # Log metrics to wandb
-            wandb.log({"epoch": epoch, "train_loss": train_loss, "train_accuracy": train_accuracy,
-                       "val_loss": val_loss, "val_accuracy": val_accuracy})
+            wandb.log(
+                {
+                    "epoch": epoch,
+                    "train_loss": train_loss,
+                    "train_accuracy": train_accuracy,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_accuracy,
+                }
+            )
 
         # Finish the wandb run
         wandb.finish()
@@ -107,4 +128,4 @@ trainer = Trainer(model)
 history = trainer.fit()
 
 # Save the model
-torch.save(model.state_dict(), 'model.pth')
+torch.save(model.state_dict(), "model.pth")

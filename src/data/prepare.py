@@ -74,7 +74,6 @@ class DatasetPreparer:
             shuffle=True,
             num_workers=0,
             pin_memory=True,
-
         )
         vali_dl = DataLoader(
             vali_dataset,

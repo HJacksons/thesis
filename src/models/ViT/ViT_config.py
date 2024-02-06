@@ -7,5 +7,5 @@ config = {
     "num_patches": 256,  # calculated
     "patch_size": 16,  # chosen
     "num_channels": 3,
-    "num_classes": 3
+    "num_classes": 3,
 }
