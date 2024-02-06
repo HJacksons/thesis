@@ -1,9 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-import ViT_config
-
+from src.models.ViT import ViT_config
 
 class ClassToken(nn.Module):
     def __init__(self, hidden_dim):
@@ -14,36 +11,6 @@ class ClassToken(nn.Module):
         batch_size = x.size(0)
         cls_token = self.cls_token.expand(batch_size, -1, -1)
         return torch.cat([cls_token, x], dim=1)
-
-
-def mlp(x, hidden_dim, mlp_dim, dropout_rate):
-    x = nn.Linear(hidden_dim, mlp_dim)(x)
-    x = nn.GELU()(x)
-    x = nn.Dropout(dropout_rate)(x)
-    x = nn.Linear(mlp_dim, hidden_dim)(x)
-    x = nn.Dropout(dropout_rate)(x)
-    return x
-
-
-class TransformerEncoderBlock(nn.Module):
-    def __init__(self, hidden_dim, num_heads, mlp_dim, dropout_rate):
-        super(TransformerEncoderBlock, self).__init__()
-        self.norm1 = nn.LayerNorm(hidden_dim)
-        self.attention = nn.MultiheadAttention(hidden_dim, num_heads, dropout=dropout_rate)
-        self.norm2 = nn.LayerNorm(hidden_dim)
-        self.mlp = nn.Sequential(
-            nn.Linear(hidden_dim, mlp_dim),
-            nn.GELU(),
-            nn.Dropout(dropout_rate),
-            nn.Linear(mlp_dim, hidden_dim),
-            nn.Dropout(dropout_rate)
-        )
-
-    def forward(self, x):
-        x = x + self.attention(self.norm1(x), self.norm1(x), self.norm1(x))[0]
-        x = x + self.mlp(self.norm2(x))
-        return x
-
 
 class ViT(nn.Module):
     def __init__(self, config=ViT_config.config):
@@ -62,16 +29,32 @@ class ViT(nn.Module):
         self.position_embedding = nn.Parameter(torch.randn(1, self.num_patches + 1, self.hidden_dim))
         self.cls_token = ClassToken(self.hidden_dim)
 
-        transformer_layer = TransformerEncoderBlock(self.hidden_dim, self.num_heads, self.mlp_dim, self.dropout_rate)
-        self.transformer_encoder = TransformerEncoder(transformer_layer, num_layers=self.num_layers)
+        # Transformer Encoder Layer
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=self.hidden_dim,
+            nhead=self.num_heads,
+            dim_feedforward=self.mlp_dim,
+            dropout=self.dropout_rate,
+            activation='gelu'
+        )
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=self.num_layers)
 
         self.head = nn.Linear(self.hidden_dim, self.num_classes)
 
     def forward(self, x):
+        B, C, H, W = x.shape
+        x = x.view(B, C, H // self.patch_size, self.patch_size, W // self.patch_size, self.patch_size)
+        x = x.permute(0, 2, 4, 1, 3, 5).contiguous()
+        x = x.view(B, -1, C * self.patch_size ** 2)
         x = self.patch_embedding(x)
-        x = x + self.position_embedding
         x = self.cls_token(x)
+        x = x + self.position_embedding
         x = self.transformer_encoder(x)
         x = x[:, 0]
         x = self.head(x)
         return x
+
+# if __name__ == "__main__":
+#     model = ViT()
+#     print(model)
+#     print(f'The model has {sum(p.numel() for p in model.parameters() if p.requires_grad):,} trainable parameters')

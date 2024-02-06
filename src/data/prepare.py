@@ -6,7 +6,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, Subset
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
-import data_config
+from src.data import data_config
 import logging
 
 logging.basicConfig(
@@ -74,6 +74,7 @@ class DatasetPreparer:
             shuffle=True,
             num_workers=0,
             pin_memory=True,
+
         )
         vali_dl = DataLoader(
             vali_dataset,
