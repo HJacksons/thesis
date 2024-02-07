@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from src.models.ViT import ViT_config
+from src.models_.ViT import ViT_config
 
 
 class ClassToken(nn.Module):
