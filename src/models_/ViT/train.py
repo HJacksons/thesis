@@ -1,4 +1,7 @@
 import os
+import sys
+
+sys.path.append(os.path.abspath("../../"))
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,7 +12,6 @@ import wandb
 
 wandb.login(key=os.getenv("WANDB_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
-
 
 dataset = DatasetPreparer()
 train_loader, vali_loader, test_loader = dataset.prepare_dataset()
