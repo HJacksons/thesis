@@ -2,8 +2,6 @@
 # For each class, the images are split randomly into 70% training, 15% validation, and 15% test sets.
 import os
 import sys
-
-sys.path.append(os.path.abspath("../../"))
 import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, Subset
