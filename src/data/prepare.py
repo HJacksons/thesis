@@ -32,31 +32,46 @@ class CustomDataset(Dataset):
 
 
 class DatasetPreparer:
-    def __init__(self, dataset_path=data_config.DATA, test_size=data_config.TEST_SIZE, vali_size=data_config.VALI_SIZE,
-                 random_state=data_config.RANDOM_SIZE):
+    def __init__(
+        self,
+        dataset_path=data_config.DATA,
+        test_size=data_config.TEST_SIZE,
+        vali_size=data_config.VALI_SIZE,
+        random_state=data_config.RANDOM_SIZE,
+    ):
         self.dataset_path = dataset_path
         self.test_size = test_size
         self.vali_size = vali_size
         self.random_state = random_state
 
         # Define transformations
-        self.data_transforms_train = transforms.Compose([
-            transforms.RandomResizedCrop(256, scale=(0.8, 1.0), ratio=(0.95, 1.05),
-                                         interpolation=transforms.InterpolationMode.BICUBIC),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(15),
-            transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
-            transforms.RandomAffine(degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-        ])
+        self.data_transforms_train = transforms.Compose(
+            [
+                transforms.RandomResizedCrop(
+                    256,
+                    scale=(0.8, 1.0),
+                    ratio=(0.95, 1.05),
+                    interpolation=transforms.InterpolationMode.BICUBIC,
+                ),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(15),
+                transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
+                transforms.RandomAffine(
+                    degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)
+                ),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        )
 
-        self.data_transforms_vali_test = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(256),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-        ])
+        self.data_transforms_vali_test = transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(256),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        )
 
     def prepare_dataset(self):
         # Load the base dataset without transformations
@@ -80,20 +95,41 @@ class DatasetPreparer:
         )
 
         # Creates datasets with transformations
-        train_dataset = CustomDataset(base_dataset, train_indices, transform=self.data_transforms_train)
-        vali_dataset = CustomDataset(base_dataset, vali_indices, transform=self.data_transforms_vali_test)
-        test_dataset = CustomDataset(base_dataset, test_indices, transform=self.data_transforms_vali_test)
+        train_dataset = CustomDataset(
+            base_dataset, train_indices, transform=self.data_transforms_train
+        )
+        vali_dataset = CustomDataset(
+            base_dataset, vali_indices, transform=self.data_transforms_vali_test
+        )
+        test_dataset = CustomDataset(
+            base_dataset, test_indices, transform=self.data_transforms_vali_test
+        )
 
         # Print the number of samples in each set logging.info(f"Train samples: {len(train_dataset)}, Validation
         # samples: {len(vali_dataset)}, Test samples: {len(test_dataset)}")
 
         # Create data loaders
-        train_dl = DataLoader(train_dataset, batch_size=data_config.BATCH_SIZE, shuffle=True, num_workers=0,
-                              pin_memory=True)
-        vali_dl = DataLoader(vali_dataset, batch_size=data_config.BATCH_SIZE, shuffle=False, num_workers=0,
-                             pin_memory=True)
-        test_dl = DataLoader(test_dataset, batch_size=data_config.BATCH_SIZE, shuffle=False, num_workers=0,
-                             pin_memory=True)
+        train_dl = DataLoader(
+            train_dataset,
+            batch_size=data_config.BATCH_SIZE,
+            shuffle=True,
+            num_workers=0,
+            pin_memory=True,
+        )
+        vali_dl = DataLoader(
+            vali_dataset,
+            batch_size=data_config.BATCH_SIZE,
+            shuffle=False,
+            num_workers=0,
+            pin_memory=True,
+        )
+        test_dl = DataLoader(
+            test_dataset,
+            batch_size=data_config.BATCH_SIZE,
+            shuffle=False,
+            num_workers=0,
+            pin_memory=True,
+        )
 
         logging.info("Dataset preparation complete.")
         return train_dl, vali_dl, test_dl
