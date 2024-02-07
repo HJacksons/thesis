@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from src.data.prepare import DatasetPreparer
 from src.data.prepare import data_config
-from ViT import ViT
+from src.models_.ViT.ViT import ViT
 import wandb
 
 wandb.login(key=os.getenv("WANDB_KEY"))

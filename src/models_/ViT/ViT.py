@@ -30,7 +30,7 @@ class ViT(nn.Module):
         self.num_channels = config["num_channels"]
 
         self.patch_embedding = nn.Linear(
-            (self.patch_size ** 2) * self.num_channels, self.hidden_dim
+            (self.patch_size**2) * self.num_channels, self.hidden_dim
         )
         self.position_embedding = nn.Parameter(
             torch.randn(1, self.num_patches + 1, self.hidden_dim)
@@ -62,7 +62,7 @@ class ViT(nn.Module):
             self.patch_size,
         )
         x = x.permute(0, 2, 4, 1, 3, 5).contiguous()
-        x = x.view(B, -1, C * self.patch_size ** 2)
+        x = x.view(B, -1, C * self.patch_size**2)
         x = self.patch_embedding(x)
         x = self.cls_token(x)
         x = x + self.position_embedding
@@ -70,6 +70,7 @@ class ViT(nn.Module):
         x = x[:, 0]
         x = self.head(x)
         return x
+
 
 # if __name__ == "__main__":
 #     model = ViT()
