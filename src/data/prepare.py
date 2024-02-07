@@ -25,9 +25,21 @@ class DatasetPreparer:
         transform=None,
     ):
         self.dataset_name = dataset
-        self.data_transforms = transforms.Compose(
-            [transforms.Resize((256, 256)), transforms.ToTensor()]
+        self.data_transforms = transforms.Compose([
+            transforms.RandomResizedCrop(256),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(15),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+
+             ]
         )
+        # self.data_transforms_vali_test = transforms.Compose([
+        #     transforms.Resize(256),
+        #     transforms.CenterCrop(256),
+        #     transforms.ToTensor(),
+        #     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        # ])
         self.test_size = test_size
         self.vali_size = vali_size
         self.random_state = random_size
@@ -75,6 +87,7 @@ class DatasetPreparer:
             shuffle=True,
             num_workers=0,
             pin_memory=True,
+
         )
         vali_dl = DataLoader(
             vali_dataset,
