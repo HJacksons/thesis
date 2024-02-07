@@ -1,78 +1,26 @@
-import sys
-import os
-import torch
+from transformers import ViTImageProcessor, ViTModel
+from transformers.modeling_outputs import SequenceClassifierOutput
 import torch.nn as nn
-from src.models_.ViT import ViT_config
-
-
-class ClassToken(nn.Module):
-    def __init__(self, hidden_dim):
-        super(ClassToken, self).__init__()
-        self.cls_token = nn.Parameter(torch.randn(1, 1, hidden_dim))
-
-    def forward(self, x):
-        batch_size = x.size(0)
-        cls_token = self.cls_token.expand(batch_size, -1, -1)
-        return torch.cat([cls_token, x], dim=1)
 
 
 class ViT(nn.Module):
-    def __init__(self, config=ViT_config.config):
+    def __init__(self, num_labels=3):
         super(ViT, self).__init__()
-        self.patch_size = config["patch_size"]
-        self.num_patches = config["num_patches"]
-        self.hidden_dim = config["hidden_dim"]
-        self.num_heads = config["num_heads"]
-        self.mlp_dim = config["mlp_dim"]
-        self.dropout_rate = config["dropout_rate"]
-        self.num_layers = config["num_layers"]
-        self.num_classes = config["num_classes"]
-        self.num_channels = config["num_channels"]
+        self.vit = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
+        self.dropout = nn.Dropout(0.1)
+        self.classifier = nn.Linear(self.vit.config.hidden_size, num_labels)
+        self.num_labels = num_labels
 
-        self.patch_embedding = nn.Linear(
-            (self.patch_size**2) * self.num_channels, self.hidden_dim
-        )
-        self.position_embedding = nn.Parameter(
-            torch.randn(1, self.num_patches + 1, self.hidden_dim)
-        )
-        self.cls_token = ClassToken(self.hidden_dim)
+    def forward(self, pixel_values, labels):
+        outputs = self.vit(pixel_values=pixel_values)
+        output = self.dropout(outputs.last_hidden_state[:, 0])
+        logits = self.classifier(output)
 
-        # Transformer Encoder Layer
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=self.hidden_dim,
-            nhead=self.num_heads,
-            dim_feedforward=self.mlp_dim,
-            dropout=self.dropout_rate,
-            activation="gelu",
-        )
-        self.transformer_encoder = nn.TransformerEncoder(
-            encoder_layer, num_layers=self.num_layers
-        )
-
-        self.head = nn.Linear(self.hidden_dim, self.num_classes)
-
-    def forward(self, x):
-        B, C, H, W = x.shape
-        x = x.view(
-            B,
-            C,
-            H // self.patch_size,
-            self.patch_size,
-            W // self.patch_size,
-            self.patch_size,
-        )
-        x = x.permute(0, 2, 4, 1, 3, 5).contiguous()
-        x = x.view(B, -1, C * self.patch_size**2)
-        x = self.patch_embedding(x)
-        x = self.cls_token(x)
-        x = x + self.position_embedding
-        x = self.transformer_encoder(x)
-        x = x[:, 0]
-        x = self.head(x)
-        return x
-
-
-# if __name__ == "__main__":
-#     model = ViT()
-#     print(model)
-#     print(f'The model has {sum(p.numel() for p in model.parameters() if p.requires_grad):,} trainable parameters')
+        loss = None
+        if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+        if loss is not None:
+            return logits, loss.item()
+        else:
+            return logits, None
