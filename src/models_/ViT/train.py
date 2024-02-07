@@ -20,18 +20,20 @@ model.to(data_config.DEVICE)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=data_config.LEARNING_RATE, momentum=0.9)
+optimizer = torch.optim.SGD(
+    model.parameters(), lr=data_config.LEARNING_RATE, momentum=0.9
+)
 
 
 class Trainer:
     def __init__(
-            self,
-            model_,
-            train_dl=train_loader,
-            vali_dl=vali_loader,
-            criteria=criterion,
-            optima=optimizer,
-            epochs=data_config.EPOCHS,
+        self,
+        model_,
+        train_dl=train_loader,
+        vali_dl=vali_loader,
+        criteria=criterion,
+        optima=optimizer,
+        epochs=data_config.EPOCHS,
     ):
         self.model = model_
         self.train_loader = train_dl

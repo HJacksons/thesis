@@ -10,7 +10,7 @@ TEST_SIZE = 0.3
 VALI_SIZE = 0.5
 RANDOM_SIZE = 42
 BATCH_SIZE = 64
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 EPOCHS = 10
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
