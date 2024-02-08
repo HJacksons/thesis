@@ -57,7 +57,7 @@ for epoch in range(data_config.EPOCHS):
 
         # Train accuracy and loss
         train_loss /= len(train_loader)
-        train_accuracy = train_correct / total_train_samples
+        # train_accuracy = train_correct / total_train_samples
 
         # Validation
         if step % 50 == 0:
@@ -84,7 +84,7 @@ for epoch in range(data_config.EPOCHS):
 
             # Validation accuracy and loss
             val_loss /= len(vali_loader)
-            val_accuracy = val_correct / total_val_samples
+            # val_accuracy = val_correct / total_val_samples
 
             # Log training and validation results
             logging.info(
