@@ -2,6 +2,7 @@ from torchvision import models
 import torch
 import torch.nn as nn
 from torchsummary import summary
+from torchvision.models.inception import Inception_V3_Weights
 
 
 # lets define inception model
@@ -9,9 +10,10 @@ class Inception(nn.Module):
     def __init__(self):
         super(Inception, self).__init__()
 
-        self.model = models.inception_v3(pretrained=True)
+        weights = Inception_V3_Weights.DEFAULT
+        self.model = models.inception_v3(weights=weights)
         self.model.aux_logits = False
-        self.model.fc = nn.Linear(2048, 3)
+        self.model.fc = nn.Linear(2048, 3)  # Fine turning the model for 3 classes
 
     def forward(self, x):
         return self.model(x)
