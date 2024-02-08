@@ -30,52 +30,34 @@ optimizer = optim.Adam(model.parameters(), lr=data_config.LEARNING_RATE)
 loss_fn = nn.CrossEntropyLoss()
 
 for epoch in range(data_config.EPOCHS):
-    # Train the model
-    model.train()
-    for step, (images, labels) in enumerate(train_loader):
-        # preprocess input images
-        if torch.is_tensor(images):
-            images = [to_pil_image(img) for img in images]
-        inputs = feature_extractor(images, return_tensors="pt")
+    for step, (x, y) in enumerate(train_loader):
+        if torch.is_tensor(x):
+            x = [to_pil_image(img) for img in x]
+        inputs = feature_extractor(x, return_tensors="pt")
         pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
-        labels = labels.to(data_config.DEVICE)
+        labels = y.to(data_config.DEVICE)
 
-        # Forward pass
-        outputs, loss = model(pixel_values, None)
-        if loss is not None:
-            loss = loss_fn(outputs, labels)
-
-            # Backward pass and optimize
+        output, loss = model(pixel_values, None)
+        if loss is None:
+            loss = loss_fn(output, labels)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-        # Validation
         if step % 50 == 0:
-            model.eval()
-            val_loss, val_correct, total_val = 0, 0, 0
-            with torch.no_grad():
-                for val_images, val_labels in vali_loader:
-                    if torch.is_tensor(val_images):
-                        val_images = [to_pil_image(img) for img in val_images]
-                    inputs = feature_extractor(val_images, return_tensors="pt")
-                    pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
-                    val_labels = val_labels.to(data_config.DEVICE)
+            test = next(iter(test_loader))
+            test_x, test_y = test
+            if torch.is_tensor(test_x):
+                test_x = [to_pil_image(img) for img in test_x]
+            test_inputs = feature_extractor(images=test_x, return_tensors="pt")
+            test_pixel_values = test_inputs["pixel_values"].to(data_config.DEVICE)
+            test_labels = test_y.to(data_config.DEVICE)
 
-                    val_outputs, val_loss = model(pixel_values, None)
-                    if val_loss is not None:
-                        val_loss = loss_fn(val_outputs, val_labels)
-                        val_loss += val_loss.item()
-                        _, predicted = torch.max(val_outputs, 1)
-                        val_correct += (predicted == val_labels).sum().item()
-                        total_val += val_labels.size(0)
-                        val_accuracy = val_correct / total_val
+            test_output, loss = model(test_pixel_values, test_labels)
+            test_output = test_output.argmax(1)
+            accuracy = (
+                test_output == test_labels
+            ).sum().item() / data_config.BATCH_SIZE
             logging.info(
-                f"Epoch [{epoch + 1}/{data_config.EPOCHS}], Step [{step}/{len(train_loader)}], Loss: {loss}, Val Loss: {val_loss}"
-            )
-            wandb.log(
-                {
-                    "Train Loss": loss,
-                    "Val Loss": val_loss,
-                }
+                f"Epoch: {epoch} | Step: {step} | train loss: {loss.item()} | test accuracy: {accuracy}"
             )
