@@ -32,7 +32,7 @@ loss_fn = nn.CrossEntropyLoss()
 for epoch in range(data_config.EPOCHS):
     # Train the model
     model.train()
-    train_loss, train_correct, total_train_samples = 0, 0, 0
+    train_loss, train_accuracy, train_correct, total_train_samples = 0, 0, 0
     for images, labels in train_loader:
         if torch.is_tensor(images):
             images = [to_pil_image(img) for img in images]
