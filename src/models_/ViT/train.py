@@ -30,39 +30,63 @@ optimizer = optim.Adam(model.parameters(), lr=data_config.LEARNING_RATE)
 loss_fn = nn.CrossEntropyLoss()
 
 for epoch in range(data_config.EPOCHS):
-    for step, (x, y) in enumerate(train_loader):
-        if torch.is_tensor(x):
-            x = [to_pil_image(img) for img in x]
-        inputs = feature_extractor(x, return_tensors="pt")
+    # Train the model
+    model.train()
+    train_loss, train_accuracy = 0, 0
+    for images, labels in train_loader:
+        if torch.is_tensor(images):
+            images = [to_pil_image(img) for img in images]
+        inputs = feature_extractor(images, return_tensors="pt")
         pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
-        labels = y.to(data_config.DEVICE)
+        labels = labels.to(data_config.DEVICE)
 
-        output, loss = model(pixel_values, None)
+        # Forward pass
+        outputs, loss = model(pixel_values, None)
         if loss is None:
-            loss = loss_fn(output, labels)
+            loss = loss_fn(outputs, labels)
+            # Backward pass and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-        if step % 50 == 0:
-            test = next(iter(test_loader))
-            test_x, test_y = test
-            if torch.is_tensor(test_x):
-                test_x = [to_pil_image(img) for img in test_x]
-            test_inputs = feature_extractor(images=test_x, return_tensors="pt")
-            test_pixel_values = test_inputs["pixel_values"].to(data_config.DEVICE)
-            test_labels = test_y.to(data_config.DEVICE)
+            train_loss += loss.item()
+            predictions = torch.argmax(outputs, 1)
+            train_accuracy += (predictions == labels).sum().item()
 
-            test_output, loss = model(test_pixel_values, test_labels)
-            test_output = test_output.argmax(1)
-            accuracy = (
-                test_output == test_labels
-            ).sum().item() / data_config.BATCH_SIZE
-            logging.info(
-                "Epoch: ",
-                epoch,
-                "| train loss: %.4f" % loss,
-                "| test accuracy: %.2f" % accuracy,
-            )
-            # log everything to wandb, plot loss, accuracy against epoch
-            wandb.log({"train loss": loss, "test accuracy": accuracy})  # log metrics
+        # Validation
+        model.eval()
+        val_loss, val_accuracy = 0, 0
+        with torch.no_grad():
+            for images, labels in vali_loader:
+                if torch.is_tensor(images):
+                    images = [to_pil_image(img) for img in images]
+                inputs = feature_extractor(images, return_tensors="pt")
+                pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
+                labels = labels.to(data_config.DEVICE)
+
+                # Forward pass
+                outputs, loss = model(pixel_values, None)
+                if loss is None:
+                    loss = loss_fn(outputs, labels)
+
+                    # Calculate loss and accuracy
+                    val_loss += loss.item()
+                    predictions = torch.argmax(outputs, 1)
+                    val_accuracy += (predictions == labels).sum().item()
+
+        # Log training and validation results
+        train_loss /= len(train_loader)
+        train_accuracy /= len(train_loader)
+        val_loss /= len(vali_loader)
+        val_accuracy /= len(vali_loader)
+        logging.info(
+            f"Epoch: {epoch} | Train loss: {train_loss} | Train accuracy: {train_accuracy} | Val loss: {val_loss} | Val accuracy: {val_accuracy}"
+        )
+        wandb.log(
+            {
+                "Train loss": train_loss,
+                "Train accuracy": train_accuracy,
+                "Val loss": val_loss,
+                "Val accuracy": val_accuracy,
+            }
+        )
