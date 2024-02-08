@@ -6,7 +6,8 @@ from src.data.prepare import DatasetPreparer
 from src.data.prepare import data_config
 from src.models_.ViT.ViT import ViT
 from transformers import ViTFeatureExtractor
-import numpy as np
+from torchvision.transforms.functional import to_pil_image
+
 import wandb
 import logging
 
@@ -40,6 +41,8 @@ for epoch in range(data_config.EPOCHS):
 
     for images, labels in train_loader:
         # Process images through the feature extractor
+        if torch.is_tensor(images):
+            images = [to_pil_image(image) for image in images]
         inputs = feature_extractor(images=images, return_tensors="pt")
         pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
         labels = labels.to(data_config.DEVICE)
@@ -67,6 +70,8 @@ for epoch in range(data_config.EPOCHS):
 
     with torch.no_grad():
         for images, labels in vali_loader:
+            if torch.is_tensor(images):
+                images = [to_pil_image(image) for image in images]
             inputs = feature_extractor(images=images, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
             labels = labels.to(data_config.DEVICE)
