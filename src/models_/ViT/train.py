@@ -80,7 +80,7 @@ for epoch in range(data_config.EPOCHS):
         val_loss /= len(vali_loader)
         val_accuracy /= len(vali_loader)
         logging.info(
-            f"Epoch: {epoch} | Train loss: {train_loss} | Train accuracy: {train_accuracy} | Val loss: {val_loss} | Val accuracy: {val_accuracy}"
+            f"Epoch: {epoch} | Train loss: %.4f {train_loss} | Train accuracy: %.4f {train_accuracy} | Val loss: %.4f  {val_loss} | Val accuracy: %.4f  {val_accuracy}"
         )
         wandb.log(
             {
