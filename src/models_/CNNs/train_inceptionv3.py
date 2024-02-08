@@ -105,6 +105,10 @@ class Trainer:
                 }
             )
 
+        # save the model at end of training
+        torch.save(model.state_dict(), "inceptionv3.pth")
 
+
+# Train the model
 trainer = Trainer(model)
 trainer.train()
