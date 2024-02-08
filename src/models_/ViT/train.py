@@ -49,6 +49,7 @@ class Trainer:
 
     def train(self):
         self.model.train()
+        log_interval = 50
 
         for epoch in range(data_config.EPOCHS):
             self.model.train()
@@ -56,7 +57,7 @@ class Trainer:
             total_train_correct = 0
             total_train_samples = 0
 
-            for images, labels in self.train_loader:
+            for step, (images, labels) in self.train_loader:
                 images = (
                     [to_pil_image(img) for img in images]
                     if torch.is_tensor(images)
@@ -72,13 +73,21 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
 
-                total_train_loss += loss.item() * labels.size(0)
-                _, predicted = torch.max(outputs, 1)
-                total_train_correct += (predicted == labels).sum().item()
-                total_train_samples += labels.size(0)
+                if step % log_interval == 0:
+                    _, predicted = torch.max(outputs, 1)
+                    accuracy = (predicted == labels).sum().item()
 
-            avg_train_loss = total_train_loss / total_train_samples
-            train_accuracy = total_train_correct / total_train_samples
+                    logging.info(f"Epoch: {epoch}, Step: {step}, Loss: {loss.item()}, Accuracy: {accuracy}")
+                    wandb.log(
+                        {"Step Loss": loss.item(), "Step Accuracy": accuracy, "Step": step + epoch * len(train_loader)})
+
+            #     total_train_loss += loss.item() * labels.size(0)
+            #     _, predicted = torch.max(outputs, 1)
+            #     total_train_correct += (predicted == labels).sum().item()
+            #     total_train_samples += labels.size(0)
+            #
+            # avg_train_loss = total_train_loss / total_train_samples
+            # train_accuracy = total_train_correct / total_train_samples
 
             # Validation
             self.model.eval()
@@ -107,18 +116,8 @@ class Trainer:
             avg_val_loss = total_val_loss / total_val_samples
             val_accuracy = total_val_correct / total_val_samples
 
-            # Logging
-            logging.info(
-                f"Epoch {epoch + 1}/{data_config.EPOCHS}, Train Loss: {avg_train_loss:.4f}, Train Acc: {train_accuracy:.4f}, Val Loss: {avg_val_loss:.4f}, Val Acc: {val_accuracy:.4f}"
-            )
-            wandb.log(
-                {
-                    "Train Loss": avg_train_loss,
-                    "Train Accuracy": train_accuracy,
-                    "Validation Loss": avg_val_loss,
-                    "Validation Accuracy": val_accuracy,
-                }
-            )
+            logging.info(f"Epoch: {epoch}, Validation Loss: {avg_val_loss}, Validation Accuracy: {val_accuracy}")
+            wandb.log({"Validation Loss": avg_val_loss, "Validation Accuracy": val_accuracy, "Epoch": epoch})
 
 
 trainer = Trainer()
