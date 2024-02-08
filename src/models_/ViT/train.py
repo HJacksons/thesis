@@ -50,7 +50,7 @@ for epoch in range(data_config.EPOCHS):
             loss.backward()
             optimizer.step()
 
-            train_loss += loss.item()
+            train_loss += loss.item() * images.size(0)
             predictions = torch.argmax(outputs, 1)
             train_correct += (predictions == labels).sum().item()
             total_train_samples += labels.size(0)
