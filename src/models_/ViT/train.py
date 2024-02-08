@@ -57,7 +57,7 @@ class Trainer:
             total_train_correct = 0
             total_train_samples = 0
 
-            for step, (images, labels) in self.train_loader:
+            for step, (images, labels) in enumerate(self.train_loader):
                 images = (
                     [to_pil_image(img) for img in images]
                     if torch.is_tensor(images)
