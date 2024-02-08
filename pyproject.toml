@@ -17,6 +17,7 @@ torchvision = "^0.17.0"
 scikit-learn = "^1.4.0"
 opencv-python = "^4.9.0.80"
 transformers = "^4.37.2"
+torchsummary = "^1.5.1"
 
 
 [build-system]

@@ -30,14 +30,14 @@ loss_fn = nn.CrossEntropyLoss()
 
 class Trainer:
     def __init__(
-            self,
-            model=MODEL,
-            train_dl=train_loader,
-            vali_dl=train_loader,
-            criteria=loss_fn,
-            optima=optimizer,
-            epochs=data_config.EPOCHS,
-            feature_extract=feature_extractor,
+        self,
+        model=MODEL,
+        train_dl=train_loader,
+        vali_dl=train_loader,
+        criteria=loss_fn,
+        optima=optimizer,
+        epochs=data_config.EPOCHS,
+        feature_extract=feature_extractor,
     ):
         self.model = model
         self.train_loader = train_dl
