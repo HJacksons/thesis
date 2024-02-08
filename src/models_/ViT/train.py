@@ -69,10 +69,14 @@ for epoch in range(data_config.EPOCHS):
                         _, predicted = torch.max(val_outputs, 1)
                         val_correct += (predicted == val_labels).sum().item()
                         total_val += val_labels.size(0)
-
-            val_loss /= len(vali_loader.dataset)
             val_accuracy = val_correct / total_val
-
             logging.info(
-                f"Epoch {epoch + 1}, Train Loss: {loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.4f}"
+                f"Epoch [{epoch + 1}/{data_config.EPOCHS}], Step [{step}/{len(train_loader)}], Loss: {loss.item()}, Val Loss: {val_loss}, Val Accuracy: {val_accuracy}"
+            )
+            wandb.log(
+                {
+                    "Train Loss": loss.item(),
+                    "Val Loss": val_loss,
+                    "Val Accuracy": val_accuracy,
+                }
             )
