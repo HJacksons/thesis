@@ -46,9 +46,9 @@ for epoch in range(data_config.EPOCHS):
 
         if step % 50 == 0:
             test = next(iter(test_loader))
-            if torch.is_tensor(test[0]):
-                test_x = [to_pil_image(img) for img in test[0]]
             test_x, test_y = test
+            if torch.is_tensor(test_x):
+                test_x = [to_pil_image(img) for img in test_x]
             test_inputs = feature_extractor(images=test_x, return_tensors="pt")
             test_pixel_values = test_inputs["pixel_values"].to(data_config.DEVICE)
             test_labels = test_y.to(data_config.DEVICE)
