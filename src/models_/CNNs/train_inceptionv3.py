@@ -47,6 +47,9 @@ class Trainer:
         total_loss, total_correct, total_samples = 0, 0, 0
 
         for images, labels in self.train_loader:
+            images, labels = images.to(data_config.DEVICE), labels.to(
+                data_config.DEVICE
+            )
             outputs = self.model(images)
             loss = self.criterion(outputs, labels)
             self.optimizer.zero_grad()
@@ -69,6 +72,9 @@ class Trainer:
 
         with torch.no_grad():
             for images, labels in self.vali_loader:
+                images, labels = images.to(data_config.DEVICE), labels.to(
+                    data_config.DEVICE
+                )
                 outputs = self.model(images)
                 loss = self.criterion(outputs, labels)
 
