@@ -70,6 +70,7 @@ for epoch in range(data_config.EPOCHS):
                         val_correct += (predicted == val_labels).sum().item()
                         total_val += val_labels.size(0)
 
+            val_loss /= len(vali_loader)
             val_accuracy = val_correct / total_val
 
             logging.info(
