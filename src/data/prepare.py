@@ -20,7 +20,7 @@ class DatasetPreparer:
         dataset=data_config.DATA,
         test_size=data_config.TEST_SIZE,
         vali_size=data_config.VALI_SIZE,
-        random_size=data_config.RANDOM_SIZE,
+        random_state=data_config.RANDOM_STATE,
         transform=None,
     ):
         self.dataset_name = dataset
@@ -44,7 +44,7 @@ class DatasetPreparer:
         )
         self.test_size = test_size
         self.vali_size = vali_size
-        self.random_state = random_size
+        self.random_state = random_state
         self.train_dataset = None
         self.vali_dataset = None
         self.test_dataset = None
