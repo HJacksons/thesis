@@ -1,4 +1,4 @@
-from transformers import ViTImageProcessor, ViTModel
+from transformers import ViTModel
 from transformers.modeling_outputs import SequenceClassifierOutput
 import torch.nn as nn
 
