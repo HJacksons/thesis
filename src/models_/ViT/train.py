@@ -45,15 +45,15 @@ for epoch in range(data_config.EPOCHS):
         if loss is not None:
             loss = loss_fn(outputs, labels)
 
-            # Backward pass and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        # Backward pass and optimize
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            train_loss += loss.item()
-            predictions = torch.argmax(outputs, 1)
-            train_correct += (predictions == labels).sum().item()
-            total_train_samples += labels.size(0)
+        train_loss += loss.item()
+        predictions = torch.argmax(outputs, 1)
+        train_correct += (predictions == labels).sum().item()
+        total_train_samples += labels.size(0)
 
         # Train accuracy and loss
         train_loss /= len(train_loader)
@@ -75,11 +75,11 @@ for epoch in range(data_config.EPOCHS):
                 if loss is not None:
                     loss = loss_fn(outputs, labels)
 
-                    # Calculate loss and accuracy
-                    val_loss += loss.item()
-                    predictions = torch.argmax(outputs, 1)
-                    val_correct += (predictions == labels).sum().item()
-                    total_val_samples += labels.size(0)
+                # Calculate loss and accuracy
+                val_loss += loss.item()
+                predictions = torch.argmax(outputs, 1)
+                val_correct += (predictions == labels).sum().item()
+                total_val_samples += labels.size(0)
 
                 # Validation accuracy and loss
                 val_loss /= len(vali_loader)
