@@ -75,7 +75,7 @@ for epoch in range(data_config.EPOCHS):
             )
             wandb.log(
                 {
-                    "Train Loss": loss.item(),
+                    "Train Loss": loss,
                     "Val Loss": val_loss,
                 }
             )
