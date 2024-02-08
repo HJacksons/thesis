@@ -32,9 +32,8 @@ loss_fn = nn.CrossEntropyLoss()
 for epoch in range(data_config.EPOCHS):
     # Train the model
     model.train()
-    train_loss = 0
-    train_accuracy = 0
     for step, (images, labels) in enumerate(train_loader):
+        # preprocess input images
         if torch.is_tensor(images):
             images = [to_pil_image(img) for img in images]
         inputs = feature_extractor(images, return_tensors="pt")
@@ -46,20 +45,16 @@ for epoch in range(data_config.EPOCHS):
         if loss is not None:
             loss = loss_fn(outputs, labels)
 
-            # Backward pass and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-            train_loss += loss.item()
-            train_accuracy += (outputs.argmax(1) == labels).float().mean()
+        # Backward pass and optimize
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
         # Validation
         if step % 50 == 0:
             model.eval()
+            val_loss, val_correct, total_val = 0, 0, 0
             with torch.no_grad():
-                val_loss = 0
-                val_accuracy = 0
                 for val_images, val_labels in vali_loader:
                     if torch.is_tensor(val_images):
                         val_images = [to_pil_image(img) for img in val_images]
@@ -70,20 +65,19 @@ for epoch in range(data_config.EPOCHS):
                     val_outputs, val_loss = model(pixel_values, None)
                     if val_loss is not None:
                         val_loss = loss_fn(val_outputs, val_labels)
-                        val_accuracy = (
-                            (val_outputs.argmax(1) == val_labels).float().mean()
-                        )
+                    val_loss += val_loss.item()
+                    _, predicted = torch.max(val_outputs, 1)
+                    val_correct += (predicted == val_labels).sum().item()
+                    total_val += val_labels.size(0)
+            val_accuracy = val_correct / total_val
 
-                        logging.info(
-                            f"Epoch [{epoch}/{data_config.EPOCHS}], Step [{step}/{len(train_loader)}], Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.4f}"
-                        )
-
+            logging.info(
+                f"Epoch: {epoch}, Step: {step}, Train loss: {loss.item():.4f}, Val Loss: {val_loss / len(vali_loader) }, Val Accuracy: {val_accuracy:.4f}"
+            )
             wandb.log(
                 {
-                    "epoch": epoch,
-                    "train_loss": train_loss,
-                    "train_accuracy": train_accuracy,
-                    "val_loss": val_loss,
-                    "val_accuracy": val_accuracy,
+                    "Train Loss": loss.item(),
+                    "Val Loss": val_loss / len(vali_loader),
+                    "Val Accuracy": val_accuracy,
                 }
             )
