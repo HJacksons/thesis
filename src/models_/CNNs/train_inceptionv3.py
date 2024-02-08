@@ -98,3 +98,7 @@ class Trainer:
                     "vali_accuracy": vali_accuracy,
                 }
             )
+
+
+trainer = Trainer(model)
+trainer.train()
