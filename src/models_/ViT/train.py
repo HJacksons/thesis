@@ -59,5 +59,5 @@ for epoch in range(data_config.EPOCHS):
                 test_output == test_labels
             ).sum().item() / data_config.BATCH_SIZE
             logging.info(
-                f"Epoch: {epoch} | Step: {step} | train loss: {loss.item()} | test accuracy: {accuracy}"
+                f"Epoch: {epoch} | Step: {step} | train loss: {loss} | test accuracy: {accuracy}"
             )
