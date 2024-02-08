@@ -59,5 +59,10 @@ for epoch in range(data_config.EPOCHS):
                 test_output == test_labels
             ).sum().item() / data_config.BATCH_SIZE
             logging.info(
-                f"Epoch: {epoch} | Step: {step} | train loss: {loss} | test accuracy: {accuracy}"
+                "Epoch: ",
+                epoch,
+                "| train loss: %.4f" % loss,
+                "| test accuracy: %.2f" % accuracy,
             )
+            # log everything to wandb, plot loss, accuracy against epoch
+            wandb.log({"train loss": loss, "test accuracy": accuracy})  # log metrics
