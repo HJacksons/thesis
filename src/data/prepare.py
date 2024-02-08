@@ -27,7 +27,7 @@ class DatasetPreparer:
         self.data_transforms = transforms.Compose(
             [
                 transforms.RandomResizedCrop(
-                    256,
+                    299,  # ViT 256x256, Inception 299x299
                     scale=(0.8, 1.0),
                     ratio=(0.95, 1.05),
                     interpolation=transforms.InterpolationMode.BICUBIC,
