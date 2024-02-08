@@ -108,7 +108,7 @@ for epoch in range(data_config.EPOCHS):
         labels = labels.to(data_config.DEVICE)
 
         optimizer.zero_grad()
-        outputs = model(pixel_values)
+        outputs, loss = model(pixel_values, None)
         loss = loss_fn(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -137,7 +137,7 @@ for epoch in range(data_config.EPOCHS):
             pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
             labels = labels.to(data_config.DEVICE)
 
-            outputs = model(pixel_values)
+            outputs, loss = model(pixel_values, None)
             loss = loss_fn(outputs, labels)
 
             total_val_loss += loss.item() * labels.size(0)
