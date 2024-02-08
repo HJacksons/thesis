@@ -33,7 +33,7 @@ for epoch in range(data_config.EPOCHS):
     # Train the model
     model.train()
     train_loss, train_accuracy, train_correct, total_train_samples = 0, 0, 0, 0
-    for images, labels in train_loader:
+    for step, (images, labels) in enumerate(train_loader):
         if torch.is_tensor(images):
             images = [to_pil_image(img) for img in images]
         inputs = feature_extractor(images, return_tensors="pt")
@@ -55,15 +55,16 @@ for epoch in range(data_config.EPOCHS):
             train_correct += (predictions == labels).sum().item()
             total_train_samples += labels.size(0)
 
-            # Train accuracy and loss
-            train_loss /= len(train_loader)
-            train_accuracy = train_correct / total_train_samples
+        # Train accuracy and loss
+        train_loss /= len(train_loader)
+        train_accuracy = train_correct / total_train_samples
 
         # Validation
-        model.eval()
-        val_loss, val_accuracy, val_correct, total_val_samples = 0, 0, 0, 0
-        with torch.no_grad():
-            for images, labels in vali_loader:
+        if step % 50 == 0:
+            model.eval()
+            val_loss, val_accuracy, val_correct, total_val_samples = 0, 0, 0, 0
+            with torch.no_grad():
+                vali = next(iter(vali_loader))
                 if torch.is_tensor(images):
                     images = [to_pil_image(img) for img in images]
                 inputs = feature_extractor(images, return_tensors="pt")
@@ -81,19 +82,19 @@ for epoch in range(data_config.EPOCHS):
                     val_correct += (predictions == labels).sum().item()
                     total_val_samples += labels.size(0)
 
-                    # Validation accuracy and loss
-                    val_loss /= len(vali_loader)
-                    val_accuracy = val_correct / total_val_samples
+            # Validation accuracy and loss
+            val_loss /= len(vali_loader)
+            val_accuracy = val_correct / total_val_samples
 
-        # Log training and validation results
-        logging.info(
-            f"Epoch: {epoch} | Train loss: {train_loss:.4f} | Train accuracy: {train_accuracy:.4f} | Val loss: {val_loss:.4f} | Val accuracy: {val_accuracy:.4f}"
-        )
-        wandb.log(
-            {
-                "Train loss": train_loss,
-                "Train accuracy": train_accuracy,
-                "Val loss": val_loss,
-                "Val accuracy": val_accuracy,
-            }
-        )
+            # Log training and validation results
+            logging.info(
+                f"Epoch: {epoch} | Train loss: {train_loss:.4f} | Train accuracy: {train_accuracy:.4f} | Val loss: {val_loss:.4f} | Val accuracy: {val_accuracy:.4f}"
+            )
+            wandb.log(
+                {
+                    "Train loss": train_loss,
+                    "Train accuracy": train_accuracy,
+                    "Val loss": val_loss,
+                    "Val accuracy": val_accuracy,
+                }
+            )
