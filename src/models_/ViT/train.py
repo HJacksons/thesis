@@ -6,6 +6,8 @@ from src.data.prepare import DatasetPreparer
 from src.data.prepare import data_config
 from src.models_.ViT.ViT import ViT
 from transformers import ViTFeatureExtractor
+from torchvision.transforms.functional import to_pil_image
+
 import torch.utils.data as data
 from torch.autograd import Variable
 import numpy as np
@@ -29,6 +31,8 @@ loss_fn = nn.CrossEntropyLoss()
 
 for epoch in range(data_config.EPOCHS):
     for step, (x, y) in enumerate(train_loader):
+        if torch.is_tensor(x):
+            x = [to_pil_image(img) for img in x]
         inputs = feature_extractor(x, return_tensors="pt")
         pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
         labels = y.to(data_config.DEVICE)
