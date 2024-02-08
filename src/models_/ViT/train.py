@@ -45,10 +45,10 @@ for epoch in range(data_config.EPOCHS):
         if loss is not None:
             loss = loss_fn(outputs, labels)
 
-        # Backward pass and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # Backward pass and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
         # Validation
         if step % 50 == 0:
@@ -65,10 +65,11 @@ for epoch in range(data_config.EPOCHS):
                     val_outputs, val_loss = model(pixel_values, None)
                     if val_loss is not None:
                         val_loss = loss_fn(val_outputs, val_labels)
-                    val_loss += val_loss.item()
-                    _, predicted = torch.max(val_outputs, 1)
-                    val_correct += (predicted == val_labels).sum().item()
-                    total_val += val_labels.size(0)
+                        val_loss += val_loss.item()
+                        _, predicted = torch.max(val_outputs, 1)
+                        val_correct += (predicted == val_labels).sum().item()
+                        total_val += val_labels.size(0)
+
             val_accuracy = val_correct / total_val
 
             logging.info(
