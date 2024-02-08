@@ -24,23 +24,23 @@ class DatasetPreparer:
         transform=None,
     ):
         self.dataset_name = dataset
-        self.data_transforms = transforms.Compose([
-            transforms.RandomResizedCrop(
-                256,
-                scale=(0.8, 1.0),
-                ratio=(0.95, 1.05),
-                interpolation=transforms.InterpolationMode.BICUBIC,
-            ),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(15),
-            transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
-            transforms.RandomAffine(
-                degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)
-            ),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-
-        ]
+        self.data_transforms = transforms.Compose(
+            [
+                transforms.RandomResizedCrop(
+                    256,
+                    scale=(0.8, 1.0),
+                    ratio=(0.95, 1.05),
+                    interpolation=transforms.InterpolationMode.BICUBIC,
+                ),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(15),
+                transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
+                transforms.RandomAffine(
+                    degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)
+                ),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
         )
         self.test_size = test_size
         self.vali_size = vali_size

@@ -6,7 +6,7 @@ import torch.nn as nn
 class ViT(nn.Module):
     def __init__(self, num_labels=3):
         super(ViT, self).__init__()
-        self.vit = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
+        self.vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
         self.dropout = nn.Dropout(0.1)
         self.classifier = nn.Linear(self.vit.config.hidden_size, num_labels)
         self.num_labels = num_labels

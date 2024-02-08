@@ -5,7 +5,7 @@ import torch.optim as optim
 from src.data.prepare import DatasetPreparer
 from src.data.prepare import data_config
 from src.models_.ViT.ViT import ViT
-from transformers import ViTImageProcessor, ViTFeatureExtractor
+from transformers import ViTFeatureExtractor
 import torch.utils.data as data
 from torch.autograd import Variable
 import numpy as np
@@ -21,14 +21,16 @@ train_loader, vali_loader, test_loader = dataset.prepare_dataset()
 # Model
 model = ViT()
 model.to(data_config.DEVICE)
-feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
+feature_extractor = ViTFeatureExtractor.from_pretrained(
+    "google/vit-base-patch16-224-in21k"
+)
 optimizer = optim.Adam(model.parameters(), lr=data_config.LEARNING_RATE)
 loss_fn = nn.CrossEntropyLoss()
 
 for epoch in range(data_config.EPOCHS):
     for step, (x, y) in enumerate(train_loader):
         inputs = feature_extractor(x, return_tensors="pt")
-        pixel_values = inputs['pixel_values'].to(data_config.DEVICE)
+        pixel_values = inputs["pixel_values"].to(data_config.DEVICE)
         labels = y.to(data_config.DEVICE)
 
         output, loss = model(pixel_values, None)
@@ -42,10 +44,14 @@ for epoch in range(data_config.EPOCHS):
             test = next(iter(test_loader))
             test_x, test_y = test
             test_inputs = feature_extractor(images=test_x, return_tensors="pt")
-            test_pixel_values = test_inputs['pixel_values'].to(data_config.DEVICE)
+            test_pixel_values = test_inputs["pixel_values"].to(data_config.DEVICE)
             test_labels = test_y.to(data_config.DEVICE)
 
             test_output, loss = model(test_pixel_values, test_labels)
             test_output = test_output.argmax(1)
-            accuracy = (test_output == test_labels).sum().item() / data_config.BATCH_SIZE
-            logging.info(f'Epoch: {epoch} | Step: {step} | train loss: {loss.item()} | test accuracy: {accuracy}')
+            accuracy = (
+                test_output == test_labels
+            ).sum().item() / data_config.BATCH_SIZE
+            logging.info(
+                f"Epoch: {epoch} | Step: {step} | train loss: {loss.item()} | test accuracy: {accuracy}"
+            )
