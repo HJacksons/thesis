@@ -32,7 +32,7 @@ loss_fn = nn.CrossEntropyLoss()
 for epoch in range(data_config.EPOCHS):
     # Train the model
     model.train()
-    train_loss, train_accuracy, train_correct, total_train_samples = 0, 0, 0
+    train_loss, train_accuracy, train_correct, total_train_samples = 0, 0, 0, 0
     for images, labels in train_loader:
         if torch.is_tensor(images):
             images = [to_pil_image(img) for img in images]
@@ -55,9 +55,9 @@ for epoch in range(data_config.EPOCHS):
             train_correct += (predictions == labels).sum().item()
             total_train_samples += labels.size(0)
 
-            # Train accuracy and loss
-            train_loss /= len(train_loader)
-            train_accuracy = train_correct / total_train_samples
+        # Train accuracy and loss
+        train_loss /= len(train_loader)
+        train_accuracy = train_correct / total_train_samples
 
         # Validation
         model.eval()
@@ -81,9 +81,9 @@ for epoch in range(data_config.EPOCHS):
                     val_correct += (predictions == labels).sum().item()
                     total_val_samples += labels.size(0)
 
-                    # Validation accuracy and loss
-                    val_loss /= len(vali_loader)
-                    val_accuracy = val_correct / total_val_samples
+                # Validation accuracy and loss
+                val_loss /= len(vali_loader)
+                val_accuracy = val_correct / total_val_samples
 
         # Log training and validation results
         logging.info(
