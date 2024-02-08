@@ -61,7 +61,7 @@ for epoch in range(data_config.EPOCHS):
 
         # Validation
         model.eval()
-        val_loss, val_correct, total_val_samples = 0, 0, 0
+        val_loss, val_accuracy, val_correct, total_val_samples = 0, 0, 0, 0
         with torch.no_grad():
             for images, labels in vali_loader:
                 if torch.is_tensor(images):
