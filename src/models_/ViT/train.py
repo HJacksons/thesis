@@ -71,12 +71,11 @@ for epoch in range(data_config.EPOCHS):
                         total_val += val_labels.size(0)
                         val_accuracy = val_correct / total_val
             logging.info(
-                f"Epoch [{epoch + 1}/{data_config.EPOCHS}], Step [{step}/{len(train_loader)}], Loss: {loss.item()}, Val Loss: {val_loss}, Val Accuracy: {val_accuracy}"
+                f"Epoch [{epoch + 1}/{data_config.EPOCHS}], Step [{step}/{len(train_loader)}], Loss: {loss}, Val Loss: {val_loss}"
             )
             wandb.log(
                 {
                     "Train Loss": loss.item(),
                     "Val Loss": val_loss,
-                    "Val Accuracy": val_accuracy,
                 }
             )
