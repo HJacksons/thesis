@@ -6,7 +6,7 @@ from src.data.prepare import DatasetPreparer
 from src.data.prepare import data_config
 
 # Load the Inception model
-model_path = '../_saved_models/inceptionv3100.pth'
+model_path = 'src/models_/_saved_models/inceptionv3100.pth'
 model = Inception()
 model.load_state_dict(torch.load(model_path, map_location=data_config.DEVICE))
 model.to(data_config.DEVICE)
