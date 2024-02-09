@@ -6,7 +6,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, Subset
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
-import data_config
+from src.data import data_config
 import logging
 
 logging.basicConfig(
@@ -20,16 +20,31 @@ class DatasetPreparer:
         dataset=data_config.DATA,
         test_size=data_config.TEST_SIZE,
         vali_size=data_config.VALI_SIZE,
-        random_size=data_config.RANDOM_SIZE,
+        random_state=data_config.RANDOM_STATE,
         transform=None,
     ):
         self.dataset_name = dataset
         self.data_transforms = transforms.Compose(
-            [transforms.Resize((256, 256)), transforms.ToTensor()]
+            [
+                transforms.RandomResizedCrop(
+                    299,  # ViT 256x256, Inception 299x299
+                    scale=(0.8, 1.0),
+                    ratio=(0.95, 1.05),
+                    interpolation=transforms.InterpolationMode.BICUBIC,
+                ),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(15),
+                transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
+                transforms.RandomAffine(
+                    degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)
+                ),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
         )
         self.test_size = test_size
         self.vali_size = vali_size
-        self.random_state = random_size
+        self.random_state = random_state
         self.train_dataset = None
         self.vali_dataset = None
         self.test_dataset = None
@@ -72,21 +87,21 @@ class DatasetPreparer:
             train_dataset,
             batch_size=data_config.BATCH_SIZE,
             shuffle=True,
-            num_workers=0,
+            num_workers=4,
             pin_memory=True,
         )
         vali_dl = DataLoader(
             vali_dataset,
             batch_size=data_config.BATCH_SIZE,
             shuffle=False,
-            num_workers=0,
+            num_workers=4,
             pin_memory=True,
         )
         test_dl = DataLoader(
             test_dataset,
             batch_size=data_config.BATCH_SIZE,
             shuffle=False,
-            num_workers=0,
+            num_workers=4,
             pin_memory=True,
         )
 

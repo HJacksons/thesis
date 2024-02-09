@@ -102,5 +102,15 @@ class DatasetAnalyser:
 
         return c_images
 
-
-# TODO:  Add a function to remove corrupt images
+    # Remove corrupt images fn
+    def remove_corrupt_images(self, corrupt_images):
+        for c_name, c_images in corrupt_images.items():
+            class_path = os.path.join(self.dataset, c_name)
+            for c_image in c_images:
+                img_path = os.path.join(class_path, c_image)
+                try:
+                    os.remove(img_path)
+                    logging.info(f"Removed corrupt image: {img_path}")
+                except FileNotFoundError:
+                    logging.error(f"Failed to remove corrupt image: {img_path}")
+                    continue
