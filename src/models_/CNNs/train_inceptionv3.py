@@ -98,10 +98,10 @@ class Trainer:
             )
             wandb.log(
                 {
-                    "train_loss": train_loss,
-                    "train_accuracy": train_accuracy,
-                    "vali_loss": vali_loss,
-                    "vali_accuracy": vali_accuracy,
+                    "Train Loss": train_loss,
+                    "Train Accuracy": train_accuracy,
+                    "Validation Loss": vali_loss,
+                    "Validation Accuracy": vali_accuracy,
                 }
             )
 
