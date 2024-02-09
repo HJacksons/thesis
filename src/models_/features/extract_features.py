@@ -44,8 +44,9 @@ def extract_features(loader, feature_extractor):
 
 
 incept_features, incept_labels = extract_features(test_loader, feature_extractor_inception)
-# print the shape of the features
-print(incept_features.shape)
+# print the list of features
+print(incept_features)
+
 
 
 
