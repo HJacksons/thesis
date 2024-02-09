@@ -107,8 +107,9 @@ class Trainer:
 
         # save the model at end of training
         model_path = os.path.join(
-            "src/models_/ViT/_saved_models", f"inceptionv3{self.epochs}.pth"
+            "src/models_/_saved_models", f"inceptionv3{self.epochs}.pth"
         )
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
         torch.save(self.model.state_dict(), model_path)
         # torch.save(model.state_dict(), "inceptionv3.pth")
 

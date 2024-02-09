@@ -122,7 +122,8 @@ class Trainer:
 
         # Save the model
 
-        model_path = os.path.join("src/models_/ViT/_saved_models")
+        model_path = os.path.join("src/models_/_saved_models")
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
         torch.save(
             self.model.state_dict(), f"{model_path}/ViTModel{data_config.EPOCHS}.pth"
         )
