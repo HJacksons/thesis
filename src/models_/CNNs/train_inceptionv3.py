@@ -106,7 +106,11 @@ class Trainer:
             )
 
         # save the model at end of training
-        torch.save(model.state_dict(), "inceptionv3.pth")
+        model_path = os.path.join(
+            "src/models_/ViT/_saved_models", f"inceptionv3{self.epochs}.pth"
+        )
+        torch.save(self.model.state_dict(), model_path)
+        # torch.save(model.state_dict(), "inceptionv3.pth")
 
 
 # Train the model

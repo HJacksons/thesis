@@ -1,6 +1,7 @@
 from transformers import ViTModel
 from transformers.modeling_outputs import SequenceClassifierOutput
 import torch.nn as nn
+from torchsummary import summary
 
 
 class ViT(nn.Module):
