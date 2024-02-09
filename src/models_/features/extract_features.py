@@ -20,6 +20,9 @@ train_loader, vali_loader, test_loader = dataset.prepare_dataset()
 def get_feature_extractor(model):
     # Remove the final fully connected layer to get the features
     model.fc = torch.nn.Identity()
+    if hasattr(model, 'AuxLogits'):
+        model.AuxLogits.fc = torch.nn.Identity()
+
     return model
 
 
