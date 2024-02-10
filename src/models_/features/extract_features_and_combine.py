@@ -59,3 +59,4 @@ if __name__ == "__main__":
 
 # TODO
 # Analyse the combined features
+# View features in tensorboard
