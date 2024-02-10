@@ -33,14 +33,16 @@ class ModelFeatureExtractor:
         self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
 
     def inception_hook(self, module, inputs, output):
-        """Hook to extract features from the inception model."""
         global features_inception
-        features_inception = output.detach()
+        # Assuming output is a 4D tensor; apply adaptive average pooling to make it [batch_size, channels, 1, 1]
+        pooled_output = torch.nn.functional.adaptive_avg_pool2d(output, (1, 1))
+        # Flatten the output to make it [batch_size, channels]
+        features_inception = torch.flatten(pooled_output, 1).detach()
 
     def vit_hook(self, module, inputs, output):
-        """Hook to extract features from the ViT model."""
         global features_vit
-        # CLS token representation
+        # If output is already in the desired shape [batch_size, features], just detach
+        # Assuming output[0][:, 0] gives you the CLS token representation which is [batch_size, features]
         features_vit = output[0][:, 0].detach()
 
     def extract_features(self, loader):
