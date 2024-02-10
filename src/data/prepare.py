@@ -34,7 +34,7 @@ class DatasetPreparer:
         if model_type == "inception":
             resize_crop_size = 299
         elif model_type == "vit":
-            resize_crop_size = 256
+            resize_crop_size = 224
         else:
             raise ValueError("Unsupported model type")
 
