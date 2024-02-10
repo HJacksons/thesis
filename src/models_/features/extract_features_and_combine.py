@@ -14,7 +14,7 @@ def load_model(model_path, model, device):
 
 
 def main_extractor_combiner():
-    # Load the Inception model
+    # Load the Inception and ViT model
     inception_model_path = "src/models_/_saved_models/inceptionv3100.pth"
     inception_model = Inception()
     inception_model = load_model(

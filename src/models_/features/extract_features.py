@@ -1,7 +1,7 @@
 import torch
 from src.data import data_config
 
-# Define global variables to store features
+# Global variables to store features
 global features_inception, features_vit
 
 
@@ -12,17 +12,16 @@ class ModelFeatureExtractor:
         self.prepare_feature_extractor()
 
     def prepare_feature_extractor(self):
-        """Prepare the model to extract features."""
+        """Prepare the model to extract features"""
         if self.model_type == "inception":
             self.attach_inception_hook()
         elif self.model_type == "vit":
             self.attach_ViT_hook()
 
     def attach_inception_hook(self):
-        """Attach a hook to the inception model."""
+        """Attach a hook to the inception model"""
         global features_inception
-        features_inception = None  # Initialize to None
-        # Choose the layer to extract features from e.g Mixed_7c
+        features_inception = None
         layer = self.model.model.Mixed_7c
         layer.register_forward_hook(self.inception_hook)
 
@@ -30,12 +29,11 @@ class ModelFeatureExtractor:
         """Attach a hook to the ViT model."""
         global features_vit
         features_vit = None  # Initialize to None
-        # Extract feature from last layer of encoder
         self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
 
     def inception_hook(self, module, inputs, output):
         global features_inception
-        # Assuming output is a 4D tensor; apply adaptive average pooling to make it [batch_size, channels, 1, 1]
+        # For 4D output, apply adaptive average pooling to make it [batch_size, channels, 1, 1]
         pooled_output = torch.nn.functional.adaptive_avg_pool2d(output, (1, 1))
         # Flatten the output to make it [batch_size, channels]
         features_inception = torch.flatten(pooled_output, 1).detach()
@@ -47,7 +45,7 @@ class ModelFeatureExtractor:
         features_vit = output[0][:, 0].detach()
 
     def extract_features(self, loader):
-        """Extract features from the given DataLoader."""
+        """Extract features from test loader and return as tensor"""
         self.model.eval()
         features = []
         labels = []
