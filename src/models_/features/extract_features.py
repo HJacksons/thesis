@@ -18,8 +18,6 @@ class ModelFeatureExtractor:
     def get_feature_extractor_inception(self):
         """Prepare Inception model for feature extraction."""
         self.model.fc = torch.nn.Identity()
-        if hasattr(self.model, "AuxLogits"):
-            self.model.AuxLogits.fc = torch.nn.Identity()
 
     def get_feature_extractor_ViT(self):
         """Prepare ViT model for feature extraction."""
