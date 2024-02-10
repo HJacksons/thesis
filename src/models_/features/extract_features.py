@@ -19,7 +19,7 @@ class ModelFeatureExtractor:
     def attach_inception_hook(self):
         """Attach a hook to the inception model."""
         # Choose the layer to extract features from e.g Mixed_7c
-        layer = self.model.model.Mixed_7d
+        layer = self.model.model.Mixed_7b
         layer.register_forward_hook(self.inception_hook)
 
     def attach_ViT_hook(self):
