@@ -4,6 +4,7 @@ from src.data import data_config
 # Define global variables to store features
 global features_inception, features_vit
 
+
 class ModelFeatureExtractor:
     def __init__(self, model, model_type="inception"):
         self.model = model
@@ -63,9 +64,3 @@ class ModelFeatureExtractor:
         features_tensor = torch.cat(features, dim=0)
         labels_tensor = torch.cat(labels, dim=0)
         return features_tensor, labels_tensor
-
-# Example usage
-# model = ...  # Your model definition
-# loader = ...  # Your DataLoader
-# feature_extractor = ModelFeatureExtractor(model, model_type="inception" or "vit")
-# features, labels = feature_extractor.extract_features(loader)

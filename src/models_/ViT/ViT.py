@@ -27,5 +27,5 @@ class ViT(nn.Module):
             return logits, None
 
 
-#model = ViT()
-#print(model)
+# model = ViT()
+# print(model)
