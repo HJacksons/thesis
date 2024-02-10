@@ -24,4 +24,4 @@ class Inception(nn.Module):
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # model.to(device)
 # summary(model, input_size=(3, 299, 299))
-#print(model)
+#print(model.model.Mixed_7c)
