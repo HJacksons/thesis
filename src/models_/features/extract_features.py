@@ -34,7 +34,7 @@ class ModelFeatureExtractor:
     def vit_hook(self, module, inputs, output):
         """Hook to extract features from the ViT model."""
         # CLS token representation
-        self.features = output[0].detach()
+        self.features = output[:, 0, :].detach()
 
     def extract_features(self, loader):
         """Extract features from the given DataLoader."""
@@ -44,8 +44,12 @@ class ModelFeatureExtractor:
         with torch.no_grad():
             for images, label in loader:
                 images = images.to(data_config.DEVICE)
-                self.model(images)
-                features.append(self.features)
+                if self.model_type == "inception":
+                    feature = self.model(images)
+                elif self.model_type == "vit":
+                    # For ViT, assume images are preprocessed accordingly
+                    feature = self.model(pixel_values=images)[0]
+                features.append(feature)
                 labels.append(label)
         features_tensor = torch.cat(features, dim=0)
         labels_tensor = torch.cat(labels, dim=0)
