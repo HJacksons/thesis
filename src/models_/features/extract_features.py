@@ -19,7 +19,7 @@ class ModelFeatureExtractor:
     def attach_inception_hook(self):
         """Attach a hook to the inception model."""
         # choose the layer to extract features from e.g Mixed_7c
-        layer = self.model._modules.get('model')._modules.get('Mixed_7c')
+        layer = self.model._modules.get("model")._modules.get("Mixed_7c")
         layer.register_forward_hook(self.inception_hook)
 
     def attach_ViT_hook(self):
@@ -48,7 +48,7 @@ class ModelFeatureExtractor:
                     feature = self.model(images)
                 elif self.model_type == "vit":
                     # For ViT, assume images are preprocessed accordingly
-                    feature = self.model(pixel_values=images)
+                    feature = self.model(pixel_values=images)[0]
                 features.append(feature)
                 labels.append(label)
         features_tensor = torch.cat(features, dim=0)
