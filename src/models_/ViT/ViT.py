@@ -25,7 +25,3 @@ class ViT(nn.Module):
             return logits, loss.item()
         else:
             return logits, None
-
-
-model = ViT()
-print(model)
