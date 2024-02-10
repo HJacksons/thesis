@@ -6,40 +6,49 @@ from src.models_.features.extract_features import ModelFeatureExtractor
 import torch
 import logging
 
-# Load the Inception model
-inception_model_path = "src/models_/_saved_models/inceptionv3100.pth"
-inception_model = Inception()
-inception_model.load_state_dict(
-    torch.load(inception_model_path, map_location=data_config.DEVICE)
-)
-inception_model.to(data_config.DEVICE)
 
-ViT_model_path = "src/models_/_saved_models/ViTModel100.pth"
-ViT_model = ViT()
-ViT_model.load_state_dict(torch.load(ViT_model_path, map_location=data_config.DEVICE))
-ViT_model.to(data_config.DEVICE)
+def load_model(model_path, model, device):
+    model.load_state_dict(torch.load(model_path, map_location=data_config.DEVICE))
+    model.to(data_config.DEVICE)
+    return model
 
 
-# Prepare the dataset
-inception_dataset = DatasetPreparer(model_type="inception")
-_, _, inception_test_loader = inception_dataset.prepare_dataset()
+def main_extractor_combiner():
+    # Load the Inception model
+    inception_model_path = "src/models_/_saved_models/inceptionv3100.pth"
+    inception_model = Inception()
+    inception_model = load_model(
+        inception_model_path, inception_model, data_config.DEVICE
+    )
 
-ViT_dataset = DatasetPreparer(model_type="vit")
-_, _, vit_test_loader = ViT_dataset.prepare_dataset()
+    ViT_model_path = "src/models_/_saved_models/ViTModel_224_100.pth"
+    ViT_model = ViT()
+    ViT_model = load_model(ViT_model_path, ViT_model, data_config.DEVICE)
 
-# Extract features for both models
-inception_feature_extractor = ModelFeatureExtractor(
-    inception_model, model_type="inception"
-)
-ViT_feature_extractor = ModelFeatureExtractor(ViT_model, model_type="vit")
+    # Prepare the dataset
+    inception_dataset = DatasetPreparer(model_type="inception")
+    _, _, inception_test_loader = inception_dataset.prepare_dataset()
 
-inception_features, inception_labels = inception_feature_extractor.extract_features(
-    inception_test_loader
-)
-ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
+    ViT_dataset = DatasetPreparer(model_type="vit")
+    _, _, vit_test_loader = ViT_dataset.prepare_dataset()
 
-# Combined features, labels are the same for both models
-combined_features = torch.cat([inception_features, ViT_features], dim=1)
+    # Extract features for both models
+    inception_feature_extractor = ModelFeatureExtractor(
+        inception_model, model_type="inception"
+    )
+    ViT_feature_extractor = ModelFeatureExtractor(ViT_model, model_type="vit")
 
-logging.info(f"Combined features shape: {combined_features.shape}")
-logging.info(f"Labels shape: {inception_labels.shape}")
+    inception_features, inception_labels = inception_feature_extractor.extract_features(
+        inception_test_loader
+    )
+    ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
+
+    # Combined features, labels are the same for both models
+    combined_features = torch.cat([inception_features, ViT_features], dim=1)
+
+    logging.info(f"Combined features shape: {combined_features.shape}")
+    logging.info(f"Labels shape: {inception_labels.shape}")
+
+
+if __name__ == "__main__":
+    main_extractor_combiner()
