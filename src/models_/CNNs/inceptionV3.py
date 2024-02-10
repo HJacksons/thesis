@@ -20,7 +20,7 @@ class Inception(nn.Module):
 
 
 # Print model summary
-#model = Inception()
-#device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-#model.to(device)
-#summary(model, input_size=(3, 299, 299))
+# model = Inception()
+# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# model.to(device)
+# summary(model, input_size=(3, 299, 299))

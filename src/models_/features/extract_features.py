@@ -1,62 +1,46 @@
-import os
 import torch
-from src.models_.CNNs.inceptionV3 import Inception
-from src.models_.ViT.ViT import ViT
-from src.data.prepare import DatasetPreparer
-from src.data.prepare import data_config
-
-# Load the Inception model
-model_path = 'src/models_/_saved_models/inceptionv3100.pth'
-model = Inception()
-model.load_state_dict(torch.load(model_path, map_location=data_config.DEVICE))
-model.to(data_config.DEVICE)
-
-# Load the data
-dataset = DatasetPreparer()
-train_loader, vali_loader, test_loader = dataset.prepare_dataset()
+from src.data import data_config
 
 
-# lets define a function to extract features from the test loader
-def get_feature_extractor(model):
-    # Remove the final fully connected layer to get the features
-    model.fc = torch.nn.Identity()
-    if hasattr(model, 'AuxLogits'):
-        model.AuxLogits.fc = torch.nn.Identity()
+class ModelFeatureExtractor:
+    def __init__(self, model, model_type="inception"):
+        self.model = model
+        self.model_type = model_type
+        self.prepare_feature_extractor()
 
-    return model
+    def prepare_feature_extractor(self):
+        """Prepare the model to extract features."""
+        if self.model_type == "inception":
+            self.get_feature_extractor_inception()
+        elif self.model_type == "vit":
+            self.get_feature_extractor_ViT()
 
+    def get_feature_extractor_inception(self):
+        """Prepare Inception model for feature extraction."""
+        self.model.fc = torch.nn.Identity()
+        if hasattr(self.model, "AuxLogits"):
+            self.model.AuxLogits.fc = torch.nn.Identity()
 
-feature_extractor_inception = get_feature_extractor(model)
-feature_extractor_inception.eval()
-feature_extractor_inception.to(data_config.DEVICE)
+    def get_feature_extractor_ViT(self):
+        """Prepare ViT model for feature extraction."""
+        # Replace the classifier with an identity function to extract transformer features
+        self.model.classifier = torch.nn.Identity()
 
-
-# Extract features from the test loader
-def extract_features(loader, feature_extractor):
-    features = []
-    labels = []
-    with torch.no_grad():
-        for images, label in loader:
-            images = images.to(data_config.DEVICE)
-            feature = feature_extractor(images)
-            features.append(feature)
-            labels.append(label)
-            features_tensor = torch.cat(features, dim=0)
-            labels_tensor = torch.cat(labels, dim=0)
-    return features_tensor, labels_tensor
-
-
-incept_features, incept_labels = extract_features(test_loader, feature_extractor_inception)
-# print the list of features
-print(incept_features)
-
-
-
-
-
-# # Load the VIT model
-# model_path = '../_saved_models/ViTModel100.pth'
-# model = ViT()
-# model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-# model.to(torch.device('cpu'))
-# model.eval()
+    def extract_features(self, loader):
+        """Extract features from the given DataLoader."""
+        self.model.eval()
+        features = []
+        labels = []
+        with torch.no_grad():
+            for images, label in loader:
+                images = images.to(data_config.DEVICE)
+                if self.model_type == "inception":
+                    feature = self.model(images)
+                elif self.model_type == "vit":
+                    # For ViT, assume images are preprocessed accordingly
+                    feature = self.model(pixel_values=images)[0]
+                features.append(feature)
+                labels.append(label)
+        features_tensor = torch.cat(features, dim=0)
+        labels_tensor = torch.cat(labels, dim=0)
+        return features_tensor, labels_tensor
