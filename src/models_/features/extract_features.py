@@ -25,7 +25,8 @@ class ModelFeatureExtractor:
     def attach_ViT_hook(self):
         """Attach a hook to the ViT model."""
         # extract feature from last layer of encoder
-        self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
+        last_encoder_layer = self.model.vit.encoder.layer[-1]
+        last_encoder_layer.register_forward_hook(self.vit_hook)
 
     def inception_hook(self, module, inputs, output):
         """Hook to extract features from the inception model."""
