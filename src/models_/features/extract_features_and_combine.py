@@ -2,7 +2,7 @@ from src.data.prepare import DatasetPreparer
 from src.models_.CNNs.inceptionV3 import Inception
 from src.models_.ViT.ViT import ViT
 from src.data import data_config
-from extract_features import ModelFeatureExtractor
+from src.models_.features.extract_features import ModelFeatureExtractor
 import torch
 import logging
 
