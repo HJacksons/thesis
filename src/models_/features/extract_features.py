@@ -19,18 +19,17 @@ class ModelFeatureExtractor:
     def attach_inception_hook(self):
         """Attach a hook to the inception model."""
         # Choose the layer to extract features from e.g Mixed_7c
-        layer = self.model.model.Mixed_7c
+        layer = self.model.model.Mixed_7d
         layer.register_forward_hook(self.inception_hook)
 
     def attach_ViT_hook(self):
         """Attach a hook to the ViT model."""
         # extract feature from last layer of encoder
-        self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
+        self.model.vit.encoder.layer[7].register_forward_hook(self.vit_hook)
 
     def inception_hook(self, module, inputs, output):
         """Hook to extract features from the inception model."""
-        pooled_output = torch.nn.functional.adaptive_avg_pool2d(output, (1, 1))
-        self.features = torch.flatten(pooled_output, 1).detach()
+        self.features = output.detach()
 
     def vit_hook(self, module, inputs, output):
         """Hook to extract features from the ViT model."""
