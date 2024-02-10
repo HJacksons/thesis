@@ -48,6 +48,9 @@ def main_extractor_combiner():
 
     logging.info(f"Combined features shape: {combined_features.shape}")
     logging.info(f"Labels shape: {inception_labels.shape}")
+    logging.info(f"ViT features: {ViT_features}")
+    logging.info(f"Inception features: {inception_features}")
+    logging.info(f"Combined features: {combined_features}")
 
 
 if __name__ == "__main__":
