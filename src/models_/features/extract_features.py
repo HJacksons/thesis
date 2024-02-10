@@ -34,7 +34,7 @@ class ModelFeatureExtractor:
     def vit_hook(self, module, inputs, output):
         """Hook to extract features from the ViT model."""
         # CLS token representation
-        self.features = output[:, 0]
+        self.features = output[0][:, 0]
 
     def extract_features(self, loader):
         """Extract features from the given DataLoader."""
