@@ -25,21 +25,16 @@ class ModelFeatureExtractor:
     def attach_ViT_hook(self):
         """Attach a hook to the ViT model."""
         # extract feature from last layer of encoder
-        last_encoder_layer = self.model.vit.encoder.layer[-1]
-        last_encoder_layer.register_forward_hook(self.vit_hook)
+        self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
 
     def inception_hook(self, module, inputs, output):
         """Hook to extract features from the inception model."""
-        self.features = output
+        self.features = output.detach()
 
     def vit_hook(self, module, inputs, output):
         """Hook to extract features from the ViT model."""
         # CLS token representation
-        self.features = (
-            output.last_hidden_state[:, 0]
-            if hasattr(output, "last_hidden_state")
-            else output[0][:, 0]
-        )
+        self.features = output[0].detach()
 
     def extract_features(self, loader):
         """Extract features from the given DataLoader."""
@@ -49,12 +44,8 @@ class ModelFeatureExtractor:
         with torch.no_grad():
             for images, label in loader:
                 images = images.to(data_config.DEVICE)
-                if self.model_type == "inception":
-                    feature = self.model(images)
-                elif self.model_type == "vit":
-                    # For ViT, assume images are preprocessed accordingly
-                    feature = self.model(pixel_values=images)[0]
-                features.append(feature)
+                self.model(images)
+                features.append(self.features)
                 labels.append(label)
         features_tensor = torch.cat(features, dim=0)
         labels_tensor = torch.cat(labels, dim=0)
