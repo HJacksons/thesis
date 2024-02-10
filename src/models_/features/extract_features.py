@@ -18,8 +18,8 @@ class ModelFeatureExtractor:
 
     def attach_inception_hook(self):
         """Attach a hook to the inception model."""
-        # choose the layer to extract features from e.g Mixed_7c
-        layer = self.model._modules.get("model")._modules.get("Mixed_7c")
+        # Choose the layer to extract features from e.g Mixed_7c
+        layer = self.model._modules.get("Mixed_7c")
         layer.register_forward_hook(self.inception_hook)
 
     def attach_ViT_hook(self):
@@ -34,7 +34,7 @@ class ModelFeatureExtractor:
     def vit_hook(self, module, inputs, output):
         """Hook to extract features from the ViT model."""
         # CLS token representation
-        self.features = output[0][:, 0]
+        self.features = output.last_hidden_state[:, 0]
 
     def extract_features(self, loader):
         """Extract features from the given DataLoader."""
