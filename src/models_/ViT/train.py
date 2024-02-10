@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from src.data.prepare import DatasetPreparer
-from src.data.prepare import data_config
+from src.data import data_config
 from src.models_.ViT.ViT import ViT
 from transformers import ViTFeatureExtractor
 from torchvision.transforms.functional import to_pil_image
@@ -16,8 +16,8 @@ import logging
 wandb.login(key=os.getenv("WANDB_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
-dataset = DatasetPreparer()
-train_loader, vali_loader, test_loader = dataset.prepare_dataset()
+dataset = DatasetPreparer(model_type="vit")
+train_loader, vali_loader, _ = dataset.prepare_dataset()
 
 # Initialize model
 MODEL = ViT().to(data_config.DEVICE)
@@ -125,7 +125,8 @@ class Trainer:
         model_path = os.path.join("src/models_/_saved_models")
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         torch.save(
-            self.model.state_dict(), f"{model_path}/ViTModel{data_config.EPOCHS}.pth"
+            self.model.state_dict(),
+            f"{model_path}/ViTModel_224_{data_config.EPOCHS}.pth",
         )
         # torch.save(self.model.state_dict(), f"model{data_config.EPOCHS}.pth")
 

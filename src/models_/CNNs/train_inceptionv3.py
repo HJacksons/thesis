@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from src.data.prepare import DatasetPreparer
-from src.data.prepare import data_config
+from src.data import data_config
 from src.models_.CNNs.inceptionV3 import Inception
 import wandb
 
@@ -12,8 +12,8 @@ wandb.login(key=os.getenv("WANDB_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 # Load the data
-dataset = DatasetPreparer()
-train_loader, vali_loader, test_loader = dataset.prepare_dataset()
+dataset = DatasetPreparer(model_type="inception")
+train_loader, vali_loader, _ = dataset.prepare_dataset()
 
 # Model
 model = Inception()
