@@ -21,8 +21,11 @@ ViT_model.to(data_config.DEVICE)
 
 
 # Prepare the dataset
-dataset = DatasetPreparer()
-_, _, test_loader = dataset.prepare_dataset()
+inception_dataset = DatasetPreparer(model_type="inception")
+_, _, inception_test_loader = inception_dataset.prepare_dataset()
+
+ViT_dataset = DatasetPreparer()
+_, _, vit_test_loader = ViT_dataset.prepare_dataset()
 
 # Extract features for both models
 inception_feature_extractor = ModelFeatureExtractor(
@@ -31,9 +34,9 @@ inception_feature_extractor = ModelFeatureExtractor(
 ViT_feature_extractor = ModelFeatureExtractor(ViT_model, model_type="vit")
 
 inception_features, inception_labels = inception_feature_extractor.extract_features(
-    test_loader
+    inception_test_loader
 )
-ViT_features, ViT_labels = ViT_feature_extractor.extract_features(test_loader)
+ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
 
 # Combined features, labels are the same for both models
 combined_features = torch.cat([inception_features, ViT_features], dim=1)

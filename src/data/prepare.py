@@ -16,38 +16,46 @@ logging.basicConfig(
 
 class DatasetPreparer:
     def __init__(
-        self,
-        dataset=data_config.DATA,
-        test_size=data_config.TEST_SIZE,
-        vali_size=data_config.VALI_SIZE,
-        random_state=data_config.RANDOM_STATE,
-        transform=None,
+            self,
+            dataset=data_config.DATA,
+            test_size=data_config.TEST_SIZE,
+            vali_size=data_config.VALI_SIZE,
+            random_state=data_config.RANDOM_STATE,
+            model_type="inception",
     ):
         self.dataset_name = dataset
-        self.data_transforms = transforms.Compose(
-            [
-                transforms.RandomResizedCrop(
-                    299,  # ViT 256x256, Inception 299x299
-                    scale=(0.8, 1.0),
-                    ratio=(0.95, 1.05),
-                    interpolation=transforms.InterpolationMode.BICUBIC,
-                ),
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomRotation(15),
-                transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
-                transforms.RandomAffine(
-                    degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)
-                ),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-            ]
-        )
         self.test_size = test_size
         self.vali_size = vali_size
         self.random_state = random_state
-        self.train_dataset = None
-        self.vali_dataset = None
-        self.test_dataset = None
+        self.data_transforms = self.get_transforms_for_model(model_type)
+
+    @staticmethod
+    def get_transforms_for_model(model_type):
+        if model_type == 'inception':
+            resize_crop_size = 299
+        elif model_type == 'vit':
+            resize_crop_size = 256
+        else:
+            raise ValueError("Unsupported model type")
+
+        data_transforms = transforms.Compose([
+            transforms.RandomResizedCrop(
+                resize_crop_size,
+                scale=(0.8, 1.0),
+                ratio=(0.95, 1.05),
+                interpolation=transforms.InterpolationMode.BICUBIC,
+            ),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(15),
+            transforms.ColorJitter(hue=0.021, saturation=0.8, brightness=0.43),
+            transforms.RandomAffine(
+                degrees=0, translate=(0.13, 0.13), scale=(0.95, 1.05)
+            ),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ])
+
+        return data_transforms
 
     def prepare_dataset(self):
         # Load dataset

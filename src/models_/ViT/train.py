@@ -16,7 +16,7 @@ import logging
 wandb.login(key=os.getenv("WANDB_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
-dataset = DatasetPreparer()
+dataset = DatasetPreparer(model_type="vit")
 train_loader, vali_loader, _ = dataset.prepare_dataset()
 
 # Initialize model

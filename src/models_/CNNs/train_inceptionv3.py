@@ -12,7 +12,7 @@ wandb.login(key=os.getenv("WANDB_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 # Load the data
-dataset = DatasetPreparer()
+dataset = DatasetPreparer(model_type="inception")
 train_loader, vali_loader, _ = dataset.prepare_dataset()
 
 # Model
