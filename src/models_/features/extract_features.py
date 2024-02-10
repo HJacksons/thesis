@@ -29,7 +29,8 @@ class ModelFeatureExtractor:
 
     def inception_hook(self, module, inputs, output):
         """Hook to extract features from the inception model."""
-        self.features = output.detach()
+        pooled_output = torch.nn.functional.adaptive_avg_pool2d(output, (1, 1))
+        self.features = torch.flatten(pooled_output, 1).detach()
 
     def vit_hook(self, module, inputs, output):
         """Hook to extract features from the ViT model."""
