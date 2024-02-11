@@ -25,9 +25,15 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 class FeatureVisualizer:
     def __init__(self, inception_features, ViT_features, combined_features, img_labels):
-        self.inception_features = inception_features.cpu().numpy()
-        self.ViT_features = ViT_features.cpu().numpy()
-        self.combined_features = combined_features.cpu().numpy()
+        self.inception_features = np.nan_to_num(
+            inception_features.cpu().numpy(), nan=0.0, posinf=0.0, neginf=0.0
+        )
+        self.ViT_features = np.nan_to_num(
+            ViT_features.cpu().numpy(), nan=0.0, posinf=0.0, neginf=0.0
+        )
+        self.combined_features = np.nan_to_num(
+            combined_features.cpu().numpy(), nan=0.0, posinf=0.0, neginf=0.0
+        )
         self.labels = img_labels.cpu().numpy()
 
     def visualize_features(self, features, labels, title):
@@ -81,9 +87,15 @@ visualizer.apply_and_visualize()
 # log features to wandb
 wandb.log(
     {
-        "Inception Features": wandb.Histogram(inception_features),
-        "ViT Features": wandb.Histogram(ViT_features),
-        "Combined Features": wandb.Histogram(combined_features),
+        "Inception Features Vector": wandb.Table(
+            data=inception_features.tolist(), columns=["Features"]
+        ),
+        "ViT Features Vector": wandb.Table(
+            data=ViT_features.tolist(), columns=["Features"]
+        ),
+        "Combined Features Vector": wandb.Table(
+            data=combined_features.tolist(), columns=["Features"]
+        ),
     }
 )
 # just print featue vector to wandb, not as image, just features vector []
