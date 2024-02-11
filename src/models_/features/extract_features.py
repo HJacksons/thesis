@@ -1,7 +1,7 @@
 import torch
 from src.data import data_config
 
-# Global variables to store features
+
 global features_inception, features_vit
 
 

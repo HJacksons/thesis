@@ -19,6 +19,8 @@ opencv-python = "^4.9.0.80"
 transformers = "^4.37.2"
 torchsummary = "^1.5.1"
 pre-commit = "^3.6.0"
+pandas = "^2.2.0"
+seaborn = "^0.13.2"
 
 
 [tool.poetry.group.dev.dependencies]

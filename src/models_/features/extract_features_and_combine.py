@@ -4,7 +4,6 @@ from src.models_.ViT.ViT import ViT
 from src.data import data_config
 from src.models_.features.extract_features import ModelFeatureExtractor
 import torch
-import logging
 
 
 def load_model(model_path, model, device):
@@ -43,19 +42,22 @@ def main_extractor_combiner():
     )
     ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
 
-    # Combined features, labels are the same for both models
+    # Combined features; labels are the same for both models
     combined_features = torch.cat([inception_features, ViT_features], dim=1)
 
-    logging.info(f"Combined features shape: {combined_features.shape}")
-    logging.info(f"Inception features: {inception_features.shape}")
-    logging.info(f"ViT features: {ViT_features.shape}")
-    logging.info(f"ViT features: {ViT_features}")
-    logging.info(f"Inception features: {inception_features}")
-    logging.info(f"Combined features: {combined_features}")
+    # logging.info(f"Combined features shape: {combined_features.shape}")
+    # logging.info(f"Inception features: {inception_features.shape}")
+    # logging.info(f"ViT features: {ViT_features.shape}")
+    # logging.info(f"ViT features: {ViT_features}")
+    # logging.info(f"Inception features: {inception_features}")
+    # logging.info(f"Combined features: {combined_features}")
+
+    # Visualise features
+    return combined_features, ViT_features, inception_features
 
 
-if __name__ == "__main__":
-    main_extractor_combiner()
+# if __name__ == "__main__":
+#     main_extractor_combiner()
 
 # TODO
 # Analyse the combined features
