@@ -49,8 +49,18 @@ def main_extractor_combiner():
     ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
 
     # Combined features; labels are the same for both models
-    ViT_labels = inception_labels
+
     combined_features = torch.cat([inception_features, ViT_features], dim=1)
+
+    wandb.log(
+        {
+            "Combined Features": combined_features,
+            "Inception Features": inception_features,
+            "ViT Features": ViT_features,
+            "Inception Labels": inception_labels,
+            "ViT Labels": ViT_labels,
+        }
+    )
 
     return combined_features, ViT_features, inception_features, ViT_labels
 
