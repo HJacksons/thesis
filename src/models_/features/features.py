@@ -1,5 +1,8 @@
-import numpy as np
+import matplotlib
+
+matplotlib.use("Agg")  # Use the 'Agg' backend when no display is available
 import matplotlib.pyplot as plt
+
 import torch
 from src.models_.features.extract_features_and_combine import main_extractor_combiner
 
