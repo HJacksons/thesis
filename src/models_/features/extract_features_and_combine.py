@@ -52,37 +52,11 @@ def main_extractor_combiner():
     ViT_labels = inception_labels
     combined_features = torch.cat([inception_features, ViT_features], dim=1)
 
-    wandb.log(
-        {
-            "Combined Features": combined_features,
-            "Inception Features": inception_features,
-            "ViT Features": ViT_features,
-        }
-    )
-    wandb.log(
-        {
-            "Inception Features Vector": wandb.Histogram(inception_features),
-            "ViT Features Vector": wandb.Histogram(ViT_features),
-            "Combined Features Vector": wandb.Histogram(combined_features),
-        }
-    )
-    # scatter plot features using matplotlib and combined features
-    plt.scatter(combined_features[:, 0], combined_features[:, 1], c=ViT_labels)
-    plt.title("Combined Features")
-    wandb.log({"Combined Features Scatter": wandb.Image(plt)})
-    plt.close()
-
-    # plot scatter for inception vs ViT features
-    plt.scatter(inception_features[:, 0], ViT_features[:, 0], c=ViT_labels)
-    plt.title("Inception vs ViT Features")
-    wandb.log({"Inception vs ViT Features Scatter": wandb.Image(plt)})
-    plt.close()
-
     return combined_features, ViT_features, inception_features, ViT_labels
 
 
-if __name__ == "__main__":
-    main_extractor_combiner()
+# if __name__ == "__main__":
+#    main_extractor_combiner()
 
 # TODO
 # Analyse the combined features
