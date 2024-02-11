@@ -84,20 +84,15 @@ visualizer = FeatureVisualizer(
 )
 visualizer.apply_and_visualize()
 
-# log features to wandb
+# log features to wandb histogram
 wandb.log(
     {
-        "Inception Features Vector": wandb.Table(
-            data=inception_features.tolist(), columns=["Features"]
-        ),
-        "ViT Features Vector": wandb.Table(
-            data=ViT_features.tolist(), columns=["Features"]
-        ),
-        "Combined Features Vector": wandb.Table(
-            data=combined_features.tolist(), columns=["Features"]
-        ),
+        "Inception Features": wandb.Histogram(inception_features),
+        "ViT Features": wandb.Histogram(ViT_features),
+        "Combined Features": wandb.Histogram(combined_features),
     }
 )
+
 # just print featue vector to wandb, not as image, just features vector []
 wandb.log(
     {
