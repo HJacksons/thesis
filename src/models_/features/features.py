@@ -10,6 +10,7 @@ import os
 import logging
 import wandb
 from PIL import Image
+import io
 
 load_dotenv()
 logging.basicConfig(
@@ -23,50 +24,54 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
 class FeatureVisualizer:
-    def __init__(self, inception_features, ViT_features, combined_features):
+    def __init__(self, inception_features, ViT_features, combined_features, img_labels):
         self.inception_features = inception_features.cpu().numpy()
         self.ViT_features = ViT_features.cpu().numpy()
         self.combined_features = combined_features.cpu().numpy()
+        self.labels = img_labels.cpu().numpy()
 
     def visualize_features(self, features, labels, title):
         # Apply PCA
         pca = PCA(n_components=2)
         pca_result = pca.fit_transform(features)
         df = pd.DataFrame(pca_result, columns=["PC1", "PC2"])
-        df["Label"] = labels
+        df["Label"] = self.labels
 
-        # Log to W&B
-        wandb.log(
-            {
-                title: wandb.plot.scatter(
-                    df,
-                    "PC1",
-                    "PC2",
-                    title=title,
-                    labels={"PC1": "PCA Component 1", "PC2": "PCA Component 2"},
-                )
-            }
-        )
+        # Prepare the plot
+        fig, ax = plt.subplots()
+        sns.scatterplot(data=df, x="PC1", y="PC2", hue="Label", ax=ax)
+        ax.set_title(title)
+        # Convert plot to image
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        image = Image.open(buf)
+        # Log the image to W&B
+        wandb.log({title: [wandb.Image(image, caption=title)]})
+        buf.close()
+        plt.close(fig)
 
     def apply_and_visualize(self):
         # Apply visualization separately for each feature set
         self.visualize_features(
             self.inception_features,
-            ["Inception"] * len(self.inception_features),
+            self.labels,
             "PCA Visualization of Inception Features",
         )
         self.visualize_features(
             self.ViT_features,
-            ["ViT"] * len(self.ViT_features),
+            self.labels,
             "PCA Visualization of ViT Features",
         )
         self.visualize_features(
             self.combined_features,
-            ["Combined"] * len(self.combined_features),
+            self.labels,
             "PCA Visualization of Combined Features",
         )
 
 
-inception_features, ViT_features, combined_features = main_extractor_combiner()
+inception_features, ViT_features, combined_features, ViT_labels = (
+    main_extractor_combiner()
+)
 visualizer = FeatureVisualizer(inception_features, ViT_features, combined_features)
 visualizer.apply_and_visualize()
