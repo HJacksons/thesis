@@ -10,7 +10,6 @@ import os
 import logging
 import wandb
 from PIL import Image
-import io
 
 load_dotenv()
 logging.basicConfig(
@@ -23,81 +22,71 @@ wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
-class FeatureVisualizer:
-    def __init__(self, inception_features, ViT_features, combined_features, img_labels):
-        self.inception_features = np.nan_to_num(
-            inception_features.cpu().numpy(), nan=0.0, posinf=0.0, neginf=0.0
-        )
-        self.ViT_features = np.nan_to_num(
-            ViT_features.cpu().numpy(), nan=0.0, posinf=0.0, neginf=0.0
-        )
-        self.combined_features = np.nan_to_num(
-            combined_features.cpu().numpy(), nan=0.0, posinf=0.0, neginf=0.0
-        )
-        self.labels = img_labels.cpu().numpy()
+def visualize_features(features, labels, title):
+    """
+    Visualizes the features using PCA and logs the plot to Weights & Biases.
+    """
+    # Convert features to CPU and numpy, then replace NaNs and Infs
+    features_np = features.cpu().detach().numpy()
+    features_np = np.nan_to_num(features_np, nan=0.0, posinf=0.0, neginf=0.0)
 
-    def visualize_features(self, features, labels, title):
-        # Apply PCA
-        pca = PCA(n_components=2)
-        pca_result = pca.fit_transform(features)
-        df = pd.DataFrame(pca_result, columns=["PC1", "PC2"])
-        df["Label"] = self.labels
+    # Perform PCA
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(features_np)
 
-        # Prepare the plot
-        fig, ax = plt.subplots()
-        sns.scatterplot(data=df, x="PC1", y="PC2", hue="Label", ax=ax)
-        ax.set_title(title)
-        # Convert plot to image
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        image = Image.open(buf)
-        # Log the image to W&B
-        wandb.log({title: [wandb.Image(image, caption=title)]})
-        buf.close()
-        plt.close(fig)
+    # Prepare DataFrame for plotting
+    df = pd.DataFrame(
+        {
+            "PC1": pca_result[:, 0],
+            "PC2": pca_result[:, 1],
+            "Label": labels.cpu().numpy(),
+        }
+    )
 
-    def apply_and_visualize(self):
-        # Apply visualization separately for each feature set
-        self.visualize_features(
-            self.inception_features,
-            self.labels,
-            "PCA Visualization of Inception Features",
-        )
-        self.visualize_features(
-            self.ViT_features,
-            self.labels,
-            "PCA Visualization of ViT Features",
-        )
-        self.visualize_features(
-            self.combined_features,
-            self.labels,
-            "PCA Visualization of Combined Features",
-        )
+    # Plotting
+    fig, ax = plt.subplots(figsize=(10, 7))
+    scatter = ax.scatter(df["PC1"], df["PC2"], c=df["Label"], cmap="viridis", alpha=0.5)
+    legend = ax.legend(*scatter.legend_elements(), title="Labels")
+    ax.add_artist(legend)
+    ax.set_title(title)
+    ax.set_xlabel("Principal Component 1")
+    ax.set_ylabel("Principal Component 2")
 
+    # Log plot to W&B
+    wandb.log({title: wandb.Image(plt)})
+    plt.close()
+
+
+def main():
+    # Extract and combine features
+    combined_features, ViT_features, inception_features, ViT_labels = (
+        main_extractor_combiner()
+    )
+
+    # Visualize and log features
+    visualize_features(inception_features, ViT_labels, "Inception Features PCA")
+    visualize_features(ViT_features, ViT_labels, "ViT Features PCA")
+    visualize_features(combined_features, ViT_labels, "Combined Features PCA")
+
+    # Log feature vectors to W&B as histograms
+    wandb.log(
+        {
+            "Inception Features Histogram": wandb.Histogram(
+                inception_features.cpu().detach().numpy()
+            ),
+            "ViT Features Histogram": wandb.Histogram(
+                ViT_features.cpu().detach().numpy()
+            ),
+            "Combined Features Histogram": wandb.Histogram(
+                combined_features.cpu().detach().numpy()
+            ),
+        }
+    )
+
+
+if __name__ == "__main__":
+    main()
 
 inception_features, ViT_features, combined_features, ViT_labels = (
     main_extractor_combiner()
-)
-visualizer = FeatureVisualizer(
-    inception_features, ViT_features, combined_features, ViT_labels
-)
-visualizer.apply_and_visualize()
-
-# log features to wandb histogram
-wandb.log(
-    {
-        "Inception Features": wandb.Histogram(inception_features),
-        "ViT Features": wandb.Histogram(ViT_features),
-        "Combined Features": wandb.Histogram(combined_features),
-    }
-)
-
-# just print featue vector to wandb, not as image, just features vector []
-wandb.log(
-    {
-        "Inception Features": inception_features,
-        "ViT Features": ViT_features,
-        "Combined Features": combined_features,
-    }
 )
