@@ -65,8 +65,8 @@ def main_extractor_combiner():
     return combined_features, ViT_features, inception_features, ViT_labels
 
 
-# if __name__ == "__main__":
-#    main_extractor_combiner()
+if __name__ == "__main__":
+    main_extractor_combiner()
 
 # TODO
 # Analyse the combined features
