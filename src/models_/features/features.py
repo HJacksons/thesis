@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
-from extract_features_and_combine import main_extractor_combiner
+from src.models_.features.extract_features_and_combine import main_extractor_combiner
 
 
 def visualize_features(features, labels):
