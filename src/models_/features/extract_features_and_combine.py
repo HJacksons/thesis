@@ -60,15 +60,9 @@ def main_extractor_combiner():
     )
     wandb.log(
         {
-            "Inception Features Vector": wandb.Table(
-                data=inception_features.tolist(), columns=["Features"]
-            ),
-            "ViT Features Vector": wandb.Table(
-                data=ViT_features.tolist(), columns=["Features"]
-            ),
-            "Combined Features Vector": wandb.Table(
-                data=combined_features.tolist(), columns=["Features"]
-            ),
+            "Inception Features Vector": wandb.Histogram(inception_features),
+            "ViT Features Vector": wandb.Histogram(ViT_features),
+            "Combined Features Vector": wandb.Histogram(combined_features),
         }
     )
 
