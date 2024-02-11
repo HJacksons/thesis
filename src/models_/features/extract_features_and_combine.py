@@ -4,7 +4,11 @@ from src.models_.ViT.ViT import ViT
 from src.data import data_config
 from src.models_.features.extract_features import ModelFeatureExtractor
 import torch
-import logging
+import wandb
+import os
+
+wandb.login(key=os.getenv("WANDB_API_KEY"))
+wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
 def load_model(model_path, model, device):
@@ -47,12 +51,26 @@ def main_extractor_combiner():
     ViT_labels = inception_labels
     combined_features = torch.cat([inception_features, ViT_features], dim=1)
 
-    logging.info(f"Combined features shape: {combined_features.shape}")
-    logging.info(f"Inception features: {inception_features.shape}")
-    logging.info(f"ViT features: {ViT_features.shape}")
-    logging.info(f"ViT features: {ViT_features}")
-    logging.info(f"Inception features: {inception_features}")
-    logging.info(f"Combined features: {combined_features}")
+    wandb.log(
+        {
+            "Combined Features": combined_features,
+            "Inception Features": inception_features,
+            "ViT Features": ViT_features,
+        }
+    )
+    wandb.log(
+        {
+            "Inception Features Vector": wandb.Table(
+                data=inception_features.tolist(), columns=["Features"]
+            ),
+            "ViT Features Vector": wandb.Table(
+                data=ViT_features.tolist(), columns=["Features"]
+            ),
+            "Combined Features Vector": wandb.Table(
+                data=combined_features.tolist(), columns=["Features"]
+            ),
+        }
+    )
 
     return combined_features, ViT_features, inception_features, ViT_labels
 
