@@ -60,6 +60,8 @@ def main_extractor_combiner():
     logging.info(f"Inception features: {inception_features}")
     logging.info(f"ViT features: {ViT_features}")
     logging.info(f"Combined features: {combined_features}")
+    logging.info(f"ViT labels: {ViT_labels}")
+    logging.info(f"Inception labels: {inception_labels}")
 
     wandb.log(
         {
