@@ -73,5 +73,24 @@ class FeatureVisualizer:
 inception_features, ViT_features, combined_features, ViT_labels = (
     main_extractor_combiner()
 )
-visualizer = FeatureVisualizer(inception_features, ViT_features, combined_features)
+visualizer = FeatureVisualizer(
+    inception_features, ViT_features, combined_features, ViT_labels
+)
 visualizer.apply_and_visualize()
+
+# log features to wandb
+wandb.log(
+    {
+        "Inception Features": wandb.Histogram(inception_features),
+        "ViT Features": wandb.Histogram(ViT_features),
+        "Combined Features": wandb.Histogram(combined_features),
+    }
+)
+# just print featue vector to wandb, not as image, just features vector []
+wandb.log(
+    {
+        "Inception Features": inception_features,
+        "ViT Features": ViT_features,
+        "Combined Features": combined_features,
+    }
+)
