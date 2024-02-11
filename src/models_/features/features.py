@@ -25,11 +25,11 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 class FeatureVisualizer:
     def __init__(self, inception_features, ViT_features, combined_features):
-        self.inception_features = inception_features.cpu()
-        self.ViT_features = ViT_features.cpu()
-        self.combined_features = combined_features.cpu()
+        self.inception_features = inception_features.cpu().numpy()
+        self.ViT_features = ViT_features.cpu().numpy()
+        self.combined_features = combined_features.cpu().numpy()
         self.all_features = np.concatenate(
-            [inception_features, ViT_features, combined_features], axis=0
+            [self.inception_features, self.ViT_features, self.combined_features], axis=0
         )
         self.split_1 = len(self.inception_features)
         self.split_2 = self.split_1 + len(self.ViT_features)
