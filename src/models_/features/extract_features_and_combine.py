@@ -57,19 +57,19 @@ def main_extractor_combiner():
     logging.info(f"Inception features shape: {inception_features.shape}")
     logging.info(f"ViT labels shape: {ViT_labels.shape}")
     logging.info(f"Inception labels shape: {inception_labels.shape}")
-    logging.info(f"Combined labels shape: {inception_features}")
-    logging.info(f"Combined labels shape: {ViT_features}")
-    logging.info(f"Combined labels shape: {combined_features}")
+    logging.info(f"Inception features: {inception_features}")
+    logging.info(f"ViT features: {ViT_features}")
+    logging.info(f"Combined features: {combined_features}")
 
-    # wandb.log(
-    #     {
-    #         "Combined Features": combined_features,
-    #         "Inception Features": inception_features,
-    #         "ViT Features": ViT_features,
-    #         "Inception Labels": inception_labels,
-    #         "ViT Labels": ViT_labels,
-    #     }
-    # )
+    wandb.log(
+        {
+            "Combined Features": combined_features,
+            "Inception Features": inception_features,
+            "ViT Features": ViT_features,
+            "Inception Labels": inception_labels,
+            "ViT Labels": ViT_labels,
+        }
+    )
 
     return combined_features, ViT_features, inception_features, ViT_labels
 
