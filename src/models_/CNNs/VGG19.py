@@ -17,5 +17,5 @@ class VGG19(nn.Module):
 
 
 # Print model summary
-# model = VGG19()
-# summary(model, input_size=(3, 256, 256))
+model = VGG19()
+summary(model, input_size=(3, 256, 256))

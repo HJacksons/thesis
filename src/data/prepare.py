@@ -1,6 +1,3 @@
-# Prepare dataset by splitting the data into train, validation, and test sets.
-# For each class, the images are split randomly into 70% training, 15% validation, and 15% test sets.
-import os
 import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, Subset
@@ -8,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from src.data import data_config
 import logging
+import matplotlib.pyplot as plt
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S"
@@ -121,4 +119,19 @@ class DatasetPreparer:
         # logging.info(f"Number of batches in the test set: {len(test_dl)}")
         logging.info("Dataset preparation complete.")
 
+        # visualize 3 samples from each of the train, validation, and test sets
+        plt.figure(figsize=(10, 10))
+        for i in range(3):
+            for j in range(3):
+                image, label = train_dataset[i * 3 + j]
+                plt.subplot(3, 3, i * 3 + j + 1)
+                plt.imshow(image.permute(1, 2, 0))
+                plt.title(label)
+                plt.axis("off")
+        plt.show()
+
         return train_dl, vali_dl, test_dl
+
+
+prepare = DatasetPreparer()
+train_loader, vali_loader, test_loader = prepare.prepare_dataset()

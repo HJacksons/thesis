@@ -5,7 +5,7 @@ from torchsummary import summary
 from torchvision.models.inception import Inception_V3_Weights
 
 
-# lets define inception model
+# Define inception model
 class Inception(nn.Module):
     def __init__(self):
         super(Inception, self).__init__()

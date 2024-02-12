@@ -17,10 +17,9 @@ def visualize_features(features, labels):
     plt.title("Feature Visualization")
     plt.xlabel("Feature 1")
     plt.ylabel("Feature 2")
-    plt.savefig("features_visualization.png")  # Save the plot as a PNG file
-    # plt.show()  # Comment this out if your environment does not support displaying graphics
+    plt.savefig("features_visualization.png")
+    # plt.show()
 
 
-# Example usage
 combined_features, ViT_features, inception_features, labels = main_extractor_combiner()
 visualize_features(combined_features, labels)

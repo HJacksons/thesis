@@ -11,24 +11,25 @@ class ModelFeatureExtractor:
         self.model_type = model_type
         self.prepare_feature_extractor()
 
+    # Prepare the feature extractor
     def prepare_feature_extractor(self):
-        """Prepare the model to extract features"""
+
         if self.model_type == "inception":
             self.attach_inception_hook()
         elif self.model_type == "vit":
             self.attach_ViT_hook()
 
+    # Attach a hook to the Inception model
     def attach_inception_hook(self):
-        """Attach a hook to the inception model"""
         global features_inception
         features_inception = None
         layer = self.model.model.Mixed_7c
         layer.register_forward_hook(self.inception_hook)
 
+    # Attach a hook to the ViT model
     def attach_ViT_hook(self):
-        """Attach a hook to the ViT model."""
         global features_vit
-        features_vit = None  # Initialize to None
+        features_vit = None
         self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
 
     def inception_hook(self, module, inputs, output):
@@ -41,18 +42,17 @@ class ModelFeatureExtractor:
     def vit_hook(self, module, inputs, output):
         global features_vit
         # If output is already in the desired shape [batch_size, features], just detach
-        # Assuming output[0][:, 0] gives you the CLS token representation which is [batch_size, features]
         features_vit = output[0][:, 0].detach()
 
+    # Extract features from the test loader
     def extract_features(self, loader):
-        """Extract features from test loader and return as tensor"""
         self.model.eval()
         features = []
         labels = []
         with torch.no_grad():
             for images, label in loader:
                 images = images.to(data_config.DEVICE)
-                self.model(images)  # Trigger hooks and store features globally
+                self.model(images)  # This will call the hook
                 if self.model_type == "inception":
                     features.append(features_inception)
                 elif self.model_type == "vit":
