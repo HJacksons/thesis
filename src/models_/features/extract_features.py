@@ -68,17 +68,21 @@ class ModelFeatureExtractor:
         self.model.eval()
         features = None
         labels = None
-        random_index = random.randint(0, len(loader.dataset) - 1)
+        random_index = random.randint(
+            0, len(loader.dataset) - 1
+        )  # Use the length of the dataset
         with torch.no_grad():
             images, label = loader.dataset[random_index]
-            images = images.to(data_config.DEVICE).unsqueeze(0)
+            images = images.to(data_config.DEVICE).unsqueeze(0)  # Add a batch dimension
             self.model(images)  # This will call the hook
             if self.model_type == "inception":
                 features = features_inception
             elif self.model_type == "vit":
                 features = features_vit
-                labels = label
+            labels = label  # Assign label to labels outside the conditional block
 
-        features_tensor = features.unsqueeze(0)
-        labels_tensor = labels.unsqueeze(0)
+        features_tensor = features.unsqueeze(0)  # Add a batch dimension to features
+        labels_tensor = torch.tensor(labels).unsqueeze(
+            0
+        )  # Add a batch dimension to labels and make sure it's a tensor
         return features_tensor, labels_tensor
