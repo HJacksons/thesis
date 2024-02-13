@@ -33,7 +33,7 @@ class Trainer:
         self,
         model=MODEL,
         train_dl=train_loader,
-        vali_dl=train_loader,
+        vali_dl=vali_loader,
         criteria=loss_fn,
         optima=optimizer,
         epochs=data_config.EPOCHS,
