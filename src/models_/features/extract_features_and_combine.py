@@ -44,19 +44,10 @@ def main_extractor_combiner():
     )
     ViT_feature_extractor = ModelFeatureExtractor(ViT_model, model_type="vit")
 
-    inception_features = inception_feature_extractor.extract_features(
+    inception_features, inception_labels = inception_feature_extractor.extract_features(
         inception_test_loader
     )
-    ViT_features = ViT_feature_extractor.extract_features(vit_test_loader)
-
-    inception_features = (
-        inception_features.unsqueeze(0)
-        if inception_features.dim() == 1
-        else inception_features
-    )
-    (ViT_features) = (
-        ViT_features.unsqueeze(0) if ViT_features.dim() == 1 else ViT_features
-    )
+    ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
 
     # Combined features; labels are the same for both models
 
@@ -91,12 +82,12 @@ def main_extractor_combiner():
     df.to_excel("inception_features.xlsx", index=False)
     df = pd.DataFrame(ViT_features.numpy())
     df.to_excel("ViT_features.xlsx", index=False)
-    # df = pd.DataFrame(inception_labels.numpy())
-    # df.to_excel("inception_labels.xlsx", index=False)
-    # df = pd.DataFrame(ViT_labels.numpy())
-    # df.to_excel("ViT_labels.xlsx", index=False)
+    df = pd.DataFrame(inception_labels.numpy())
+    df.to_excel("inception_labels.xlsx", index=False)
+    df = pd.DataFrame(ViT_labels.numpy())
+    df.to_excel("ViT_labels.xlsx", index=False)
 
-    return combined_features, ViT_features, inception_features  # , ViT_labels
+    return combined_features, ViT_features, inception_features, ViT_labels
 
 
 if __name__ == "__main__":
