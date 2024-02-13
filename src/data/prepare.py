@@ -31,7 +31,7 @@ class DatasetPreparer:
     def get_transforms_for_model(model_type):
         if model_type == "inception":
             resize_crop_size = 299
-        elif model_type == "vit":
+        elif model_type == "vit" or model_type == "vgg19":
             resize_crop_size = 224
         else:
             raise ValueError("Unsupported model type")
