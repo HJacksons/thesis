@@ -10,7 +10,7 @@ class VGG19(nn.Module):
 
         self.model = models.vgg19(weights=VGG19_Weights.DEFAULT)
         for param in self.model.parameters():
-            param.requires_grad = False
+            param.requires_grad = True  # False # Freezing the layers
         self.model.classifier[6] = nn.Linear(
             4096, 3
         )  # Fine turning the model for 3 classes
