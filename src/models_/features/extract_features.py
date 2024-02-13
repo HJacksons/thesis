@@ -68,7 +68,7 @@ class ModelFeatureExtractor:
         self.model.eval()
         features = None
         labels = None
-        random_index = random.randint(0, len(loader) - 1)
+        random_index = random.randint(0, len(loader.dataset) - 1)
         with torch.no_grad():
             images, label = loader.dataset[random_index]
             images = images.to(data_config.DEVICE).unsqueeze(0)
