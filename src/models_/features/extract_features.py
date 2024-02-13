@@ -1,6 +1,6 @@
 import torch
 from src.data import data_config
-
+import random
 
 global features_inception, features_vit
 
@@ -44,21 +44,41 @@ class ModelFeatureExtractor:
         # If output is already in the desired shape [batch_size, features], just detach
         features_vit = output[0][:, 0].detach()
 
-    # Extract features from the test loader
+    # # Extract features from the test loader
+    # def extract_features(self, loader):
+    #     self.model.eval()
+    #     features = []
+    #     labels = []
+    #     with torch.no_grad():
+    #         for images, label in loader:
+    #             images = images.to(data_config.DEVICE)
+    #             self.model(images)  # This will call the hook
+    #             if self.model_type == "inception":
+    #                 features.append(features_inception)
+    #             elif self.model_type == "vit":
+    #                 features.append(features_vit)
+    #             labels.append(label)
+    #
+    #     features_tensor = torch.cat(features, dim=0)
+    #     labels_tensor = torch.cat(labels, dim=0)
+    #     return features_tensor, labels_tensor
+
+    # Extract features from the test loader (one image only)
     def extract_features(self, loader):
         self.model.eval()
-        features = []
-        labels = []
+        features = None
+        labels = None
+        random_index = random.randint(0, len(loader) - 1)
         with torch.no_grad():
-            for images, label in loader:
-                images = images.to(data_config.DEVICE)
-                self.model(images)  # This will call the hook
-                if self.model_type == "inception":
-                    features.append(features_inception)
-                elif self.model_type == "vit":
-                    features.append(features_vit)
-                labels.append(label)
+            images, label = loader.dataset[random_index]
+            images = images.to(data_config.DEVICE)
+            self.model(images)  # This will call the hook
+            if self.model_type == "inception":
+                features = features_inception
+            elif self.model_type == "vit":
+                features = features_vit
+                labels = label
 
-        features_tensor = torch.cat(features, dim=0)
-        labels_tensor = torch.cat(labels, dim=0)
+        features_tensor = features.unsqueeze(0)
+        labels_tensor = labels.unsqueeze(0)
         return features_tensor, labels_tensor
