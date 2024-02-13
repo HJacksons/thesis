@@ -1,6 +1,5 @@
 import torch
 from src.data import data_config
-import random
 
 global features_inception, features_vit
 
@@ -63,26 +62,30 @@ class ModelFeatureExtractor:
     #     labels_tensor = torch.cat(labels, dim=0)
     #     return features_tensor, labels_tensor
 
-    # Extract features from the test loader (one image only)
-    def extract_features(self, loader):
-        self.model.eval()
-        features = None
-        labels = None
-        random_index = random.randint(
-            0, len(loader.dataset) - 1
-        )  # Use the length of the dataset
-        with torch.no_grad():
-            images, label = loader.dataset[random_index]
-            images = images.to(data_config.DEVICE).unsqueeze(0)  # Add a batch dimension
-            self.model(images)  # This will call the hook
-            if self.model_type == "inception":
-                features = features_inception
-            elif self.model_type == "vit":
-                features = features_vit
-            labels = label  # Assign label to labels outside the conditional block
 
-        features_tensor = features.unsqueeze(0)  # Add a batch dimension to features
-        labels_tensor = torch.tensor(labels).unsqueeze(
-            0
-        )  # Add a batch dimension to labels and make sure it's a tensor
-        return features_tensor, labels_tensor
+# Extract features from a single image in the test loader
+def extract_features(self, loader):
+    self.model.eval()
+    features = None
+    label = None
+    with torch.no_grad():
+        # Get the first batch of images
+        images, labels = next(iter(loader))
+        image = (
+            images[0].to(data_config.DEVICE).unsqueeze(0)
+        )  # Get the first image and add batch dimension
+        self.model(image)  # This will call the hook and update features accordingly
+
+        if self.model_type == "inception":
+            features = features_inception.squeeze(
+                0
+            )  # Assume features_inception is updated by the hook
+        elif self.model_type == "vit":
+            features = features_vit.squeeze(
+                0
+            )  # Assume features_vit is updated by the hook
+
+        label = labels[0]  # Get the label of the first image
+        features_tensor = features
+        label_tensor = label
+    return features_tensor, label_tensor
