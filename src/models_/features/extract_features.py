@@ -71,7 +71,7 @@ class ModelFeatureExtractor:
         random_index = random.randint(0, len(loader) - 1)
         with torch.no_grad():
             images, label = loader.dataset[random_index]
-            images = images.to(data_config.DEVICE)
+            images = images.to(data_config.DEVICE).unsqueeze(0)
             self.model(images)  # This will call the hook
             if self.model_type == "inception":
                 features = features_inception
