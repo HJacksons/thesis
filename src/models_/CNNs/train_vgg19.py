@@ -108,7 +108,7 @@ class Trainer:
 
         # Save the model at the end of training
         model_path = os.path.join(
-            "src/models_/_saved_models", f"vgg19_{self.epochs}.pth"
+            "src/models_/_saved_models", f"vgg19_all_layers_{self.epochs}.pth"
         )
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         torch.save(self.model.state_dict(), model_path)
