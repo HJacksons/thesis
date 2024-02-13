@@ -62,30 +62,29 @@ class ModelFeatureExtractor:
     #     labels_tensor = torch.cat(labels, dim=0)
     #     return features_tensor, labels_tensor
 
+    # Extract features from a single image in the test loader
+    def extract_features(self, loader):
+        self.model.eval()
+        features = None
+        label = None
+        with torch.no_grad():
+            # Get the first batch of images
+            images, labels = next(iter(loader))
+            image = (
+                images[0].to(data_config.DEVICE).unsqueeze(0)
+            )  # Get the first image and add batch dimension
+            self.model(image)  # This will call the hook and update features accordingly
 
-# Extract features from a single image in the test loader
-def extract_features(self, loader):
-    self.model.eval()
-    features = None
-    label = None
-    with torch.no_grad():
-        # Get the first batch of images
-        images, labels = next(iter(loader))
-        image = (
-            images[0].to(data_config.DEVICE).unsqueeze(0)
-        )  # Get the first image and add batch dimension
-        self.model(image)  # This will call the hook and update features accordingly
+            if self.model_type == "inception":
+                features = features_inception.squeeze(
+                    0
+                )  # Assume features_inception is updated by the hook
+            elif self.model_type == "vit":
+                features = features_vit.squeeze(
+                    0
+                )  # Assume features_vit is updated by the hook
 
-        if self.model_type == "inception":
-            features = features_inception.squeeze(
-                0
-            )  # Assume features_inception is updated by the hook
-        elif self.model_type == "vit":
-            features = features_vit.squeeze(
-                0
-            )  # Assume features_vit is updated by the hook
-
-        label = labels[0]  # Get the label of the first image
-        features_tensor = features
-        label_tensor = label
-    return features_tensor, label_tensor
+            label = labels[0]  # Get the label of the first image
+            features_tensor = features
+            label_tensor = label
+        return features_tensor, label_tensor
