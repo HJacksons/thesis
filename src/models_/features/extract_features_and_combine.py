@@ -49,6 +49,15 @@ def main_extractor_combiner():
     )
     ViT_features, ViT_labels = ViT_feature_extractor.extract_features(vit_test_loader)
 
+    inception_features, _ = (
+        inception_features.unsqueeze(0)
+        if inception_features.dim() == 1
+        else inception_features
+    )
+    (ViT_features,) = (
+        ViT_features.unsqueeze(0) if ViT_features.dim() == 1 else ViT_features
+    )
+
     # Combined features; labels are the same for both models
 
     combined_features = torch.cat([inception_features, ViT_features], dim=1)
