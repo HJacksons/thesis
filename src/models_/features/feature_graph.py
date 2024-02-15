@@ -33,7 +33,7 @@ threshold = 0.9  # This is an arbitrary value; adjust based on your dataset
 edge_index = (similarity > threshold).nonzero(as_tuple=False).t()
 
 # Ensure edge_index is on the same device as features
-edge_index = edge_index.to(combined_features.device)
+edge_index = edge_index.to(combined_features.data_config.DEVICE)
 
 # Create a graph data object
 data = Data(x=combined_features, edge_index=edge_index)
@@ -61,8 +61,12 @@ nx.draw_networkx(
     edge_color="grey",
     font_size=14,
 )
-# log the graph to wandb
-wandb.log({"combined_features_graph": plt})
-# Save the graph data object
+plt.axis("off")  # Optional: Hide the axes
 
-torch.save(data, "combined_features_graph.pt")
+# Save the plot to a file
+plot_filename = "combined_features_graph.png"
+plt.savefig(plot_filename, format="png")
+plt.close()  # Close the plot to free up memory
+
+# Log the image file to wandb
+wandb.log({"combined_features_graph": wandb.Image(plot_filename)})
