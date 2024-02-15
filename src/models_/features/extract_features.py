@@ -20,18 +20,28 @@ def load_model(model_path, model_class, device):
     return model
 
 
-def extract_features_directly(model, loader, device, layer_name):
+def extract_features_directly(
+    model,
+    loader,
+    device,
+    layer_path,
+):
     model.eval()
     model.to(device)
     features_list = []
     labels_list = []
+
+    # Navigate to the layer
+    target_layer = model
+    for attr in layer_path:
+        target_layer = getattr(target_layer, attr)
 
     # Define a hook to capture the output of the specified layer
     def hook(module, input, output):
         features_list.append(output.detach())
 
     # Attach the hook to the layer
-    handle = getattr(model, layer_name).register_forward_hook(hook)
+    handle = target_layer.register_forward_hook(hook)
 
     with torch.no_grad():
         for images, labels in loader:
@@ -65,7 +75,7 @@ def main_feature_extraction():
     # Extract features
     # Adjust 'Mixed_7c' and 'features' based on your model's layer names for feature extraction
     inception_features, inception_labels = extract_features_directly(
-        inception_model, inception_train_loader, device, "Mixed_7c"
+        inception_model, inception_train_loader, device, ["Mixed_7c"]
     )
     vgg19_features, vgg19_labels = extract_features_directly(
         vgg19_model, vgg19_train_loader, device, "features"
