@@ -43,6 +43,10 @@ class ModelFeatureExtractor:
 
     def vgg_hook(self, module, inputs, output):
         global features_vgg
+        print(
+            "Output stats -- Mean:", output.mean().item(), "Max:", output.max().item()
+        )  # Debugging line
+
         # Assuming output is already in the desired shape [batch_size, features]
         features_vgg = torch.flatten(output, start_dim=1).detach()
 
