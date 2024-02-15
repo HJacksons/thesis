@@ -8,7 +8,6 @@ import wandb
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
-import logging
 
 wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
@@ -56,16 +55,16 @@ def main_extractor_combiner():
 
     combined_features = torch.cat([inception_features, vgg19_features], dim=1)
 
-    logging.info(f"Combined features shape: {combined_features.shape}")
-    logging.info(f"vgg19 features shape: {vgg19_features.shape}")
-    logging.info(f"Inception features shape: {inception_features.shape}")
-    logging.info(f"vgg19 labels shape: {vgg19_labels.shape}")
-    logging.info(f"Inception labels shape: {inception_labels.shape}")
-    logging.info(f"Inception features: {inception_features}")
-    logging.info(f"vgg19 features: {vgg19_features}")
-    logging.info(f"Combined features: {combined_features}")
-    logging.info(f"vgg19 labels: {vgg19_labels}")
-    logging.info(f"Inception labels: {inception_labels}")
+    # logging.info(f"Combined features shape: {combined_features.shape}")
+    # logging.info(f"vgg19 features shape: {vgg19_features.shape}")
+    # logging.info(f"Inception features shape: {inception_features.shape}")
+    # logging.info(f"vgg19 labels shape: {vgg19_labels.shape}")
+    # logging.info(f"Inception labels shape: {inception_labels.shape}")
+    # logging.info(f"Inception features: {inception_features}")
+    # logging.info(f"vgg19 features: {vgg19_features}")
+    # logging.info(f"Combined features: {combined_features}")
+    # logging.info(f"vgg19 labels: {vgg19_labels}")
+    # logging.info(f"Inception labels: {inception_labels}")
     #
     # wandb.log(
     #     {
@@ -79,22 +78,22 @@ def main_extractor_combiner():
 
     # Export features to excel
 
-    df = pd.DataFrame(combined_features.cpu().numpy())
-    df.to_csv("combined_features.csv", index=False)
-    df = pd.DataFrame(inception_features.cpu().numpy())
-    df.to_csv("inception_features.csv", index=False)
-    df = pd.DataFrame(vgg19_features.cpu().numpy())
-    df.to_csv("vgg19_features.csv", index=False)
-    df = pd.DataFrame(inception_labels.cpu().numpy())
-    df.to_csv("inception_labels.csv", index=False)
-    df = pd.DataFrame(vgg19_labels.cpu().numpy())
-    df.to_csv("vgg19_labels.csv", index=False)
+    # df = pd.DataFrame(combined_features.cpu().numpy())
+    # df.to_csv("combined_features.csv", index=False)
+    # df = pd.DataFrame(inception_features.cpu().numpy())
+    # df.to_csv("inception_features.csv", index=False)
+    # df = pd.DataFrame(vgg19_features.cpu().numpy())
+    # df.to_csv("vgg19_features.csv", index=False)
+    # df = pd.DataFrame(inception_labels.cpu().numpy())
+    # df.to_csv("inception_labels.csv", index=False)
+    # df = pd.DataFrame(vgg19_labels.cpu().numpy())
+    # df.to_csv("vgg19_labels.csv", index=False)
 
     return combined_features, vgg19_features, inception_features, vgg19_labels
 
 
-if __name__ == "__main__":
-    main_extractor_combiner()
-
-# TODO
+# if __name__ == "__main__":
+#     main_extractor_combiner()
+#
+# # TODO
 # Analyse the combined features
