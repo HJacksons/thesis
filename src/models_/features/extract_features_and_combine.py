@@ -19,21 +19,12 @@ wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
-import torch
-from src.data.prepare import DatasetPreparer  # Ensure this is the correct import path
-from src.models_.CNNs.inceptionV3 import (
-    Inception,
-)  # Ensure this is the correct import path
-from src.models_.CNNs.vgg19 import VGG19  # Ensure this is the correct import path
-from src.data import data_config
-from torch.utils.data import DataLoader
-
 # Assuming ModifiedInception and ModifiedVGG are defined as in your provided code
 
 
-def load_model(model_path, model_class, device):
+def load_model(model_path, model, device):
     # Instantiate and load the pretrained model
-    model = model_class(pretrained=False)
+    # model = model_class(pretrained=False)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     return model
