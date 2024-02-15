@@ -8,6 +8,7 @@ import wandb
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
+import logging
 
 wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
@@ -55,16 +56,16 @@ def main_extractor_combiner():
 
     combined_features = torch.cat([inception_features, vgg19_features], dim=1)
 
-    # logging.info(f"Combined features shape: {combined_features.shape}")
-    # logging.info(f"ViT features shape: {ViT_features.shape}")
-    # logging.info(f"Inception features shape: {inception_features.shape}")
-    # logging.info(f"ViT labels shape: {ViT_labels.shape}")
-    # logging.info(f"Inception labels shape: {inception_labels.shape}")
-    # logging.info(f"Inception features: {inception_features}")
-    # logging.info(f"ViT features: {ViT_features}")
-    # logging.info(f"Combined features: {combined_features}")
-    # logging.info(f"ViT labels: {ViT_labels}")
-    # logging.info(f"Inception labels: {inception_labels}")
+    logging.info(f"Combined features shape: {combined_features.shape}")
+    logging.info(f"ViT features shape: {vgg19_features.shape}")
+    logging.info(f"Inception features shape: {inception_features.shape}")
+    logging.info(f"ViT labels shape: {vgg19_labels.shape}")
+    logging.info(f"Inception labels shape: {inception_labels.shape}")
+    logging.info(f"Inception features: {inception_features}")
+    logging.info(f"ViT features: {vgg19_features}")
+    logging.info(f"Combined features: {combined_features}")
+    logging.info(f"ViT labels: {vgg19_labels}")
+    logging.info(f"Inception labels: {inception_labels}")
     #
     # wandb.log(
     #     {
