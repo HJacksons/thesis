@@ -23,34 +23,39 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
 def load_model(model_path, model, device):
-    # Instantiate and load the pretrained model
-    # model = model_class(pretrained=False)
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.to(device)
+    model.load_state_dict(torch.load(model_path, map_location=data_config.DEVICE))
+    model.to(data_config.DEVICE)
     return model
 
 
 def main_feature_extraction():
     # Initialize device
-    device = torch.device(data_config.DEVICE if torch.cuda.is_available() else "cpu")
-
     # Load models
     inception_model = load_model(
-        "src/models_/_saved_models/inceptionv3100.pth", ModifiedInception, device
+        "src/models_/_saved_models/inceptionv3100.pth",
+        ModifiedInception,
+        data_config.DEVICE,
     )
     vgg_model = load_model(
-        "src/models_/_saved_models/vgg19_all_layers_100.pth", ModifiedVGG, device
+        "src/models_/_saved_models/vgg19_all_layers_100.pth",
+        ModifiedVGG,
+        data_config.DEVICE,
     )
 
-    # Prepare data loaders
-    dataset_preparer = DatasetPreparer()
-    _, _, test_loader = dataset_preparer.prepare_dataset()  # Adjust as necessary
+    # Prepare the dataset
+    inception_dataset = DatasetPreparer(model_type="inception")
+    inception_train_loader, _, _ = inception_dataset.prepare_dataset()
+
+    vgg19_dataset = DatasetPreparer(model_type="vit")
+    vgg19_train_loader, _, _ = vgg19_dataset.prepare_dataset()
 
     # Extract features
     inception_features, inception_labels = extract_features(
-        inception_model, test_loader, device
+        inception_model, inception_train_loader, data_config.DEVICE
     )
-    vgg_features, vgg_labels = extract_features(vgg_model, test_loader, device)
+    vgg_features, vgg_labels = extract_features(
+        vgg_model, vgg19_train_loader, data_config.DEVICE
+    )
 
     # Combine features
     combined_features = torch.cat([inception_features, vgg_features], dim=1)
