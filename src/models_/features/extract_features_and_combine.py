@@ -28,7 +28,7 @@ def main_extractor_combiner():
         inception_model_path, inception_model, data_config.DEVICE
     )
 
-    vgg19_model_path = "src/models_/_saved_models/ViTModel_224_100.pth"
+    vgg19_model_path = "src/models_/_saved_models/vgg19_all_layers_100.pth"
     vgg19_model = VGG19()
     vgg19_model = load_model(vgg19_model_path, vgg19_model, data_config.DEVICE)
 
@@ -43,12 +43,12 @@ def main_extractor_combiner():
     inception_feature_extractor = ModelFeatureExtractor(
         inception_model, model_type="inception"
     )
-    ViT_feature_extractor = ModelFeatureExtractor(vgg19_model, model_type="vit")
+    vgg19_feature_extractor = ModelFeatureExtractor(vgg19_model, model_type="vgg19")
 
     inception_features, inception_labels = inception_feature_extractor.extract_features(
         inception_test_loader
     )
-    vgg19_features, vgg19_labels = ViT_feature_extractor.extract_features(
+    vgg19_features, vgg19_labels = vgg19_feature_extractor.extract_features(
         vgg19_test_loader
     )
 
