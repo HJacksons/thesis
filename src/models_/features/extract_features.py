@@ -48,8 +48,9 @@ class ModelFeatureExtractor:
 
     # Extract features from a single image in the test loader
     # Extract features from the test loader
+    features_vgg = None
+
     def extract_features(self, loader):
-        features_vgg = None
         self.model.eval()
         features = []
         labels = []
