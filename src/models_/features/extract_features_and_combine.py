@@ -80,15 +80,15 @@ def main_extractor_combiner():
     # Export features to excel
 
     df = pd.DataFrame(combined_features.cpu().numpy())
-    df.to_excel("combined_features.xlsx", index=False)
+    df.to_csv("combined_features.csv", index=False)
     df = pd.DataFrame(inception_features.cpu().numpy())
-    df.to_excel("inception_features.xlsx", index=False)
+    df.to_csv("inception_features.csv", index=False)
     df = pd.DataFrame(vgg19_features.cpu().numpy())
-    df.to_excel("vgg19_features.xlsx", index=False)
+    df.to_csv("vgg19_features.csv", index=False)
     df = pd.DataFrame(inception_labels.cpu().numpy())
-    df.to_excel("inception_labels.xlsx", index=False)
+    df.to_csv("inception_labels.csv", index=False)
     df = pd.DataFrame(vgg19_labels.cpu().numpy())
-    df.to_excel("vgg19_labels.xlsx", index=False)
+    df.to_csv("vgg19_labels.csv", index=False)
 
     return combined_features, vgg19_features, inception_features, vgg19_labels
 
