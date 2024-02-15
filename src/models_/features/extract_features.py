@@ -75,7 +75,7 @@ def main_feature_extraction():
     # Extract features
     # Adjust 'Mixed_7c' and 'features' based on your model's layer names for feature extraction
     inception_features, inception_labels = extract_features_directly(
-        inception_model, inception_train_loader, device, ["Mixed_7c"]
+        inception_model, inception_train_loader, device, ["model", "model", "Mixed_7c"]
     )
     vgg19_features, vgg19_labels = extract_features_directly(
         vgg19_model, vgg19_train_loader, device, "features"
