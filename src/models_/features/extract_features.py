@@ -31,7 +31,7 @@ class ModelFeatureExtractor:
         global features_vgg
         features_vgg = None
         # Assuming 'features' is the last conv layer in VGG for feature extraction
-        layer = self.model.features
+        layer = self.model.model.features
         layer.register_forward_hook(self.vgg_hook)
 
     def inception_hook(self, module, inputs, output):
