@@ -71,7 +71,7 @@ nx.draw_networkx_edges(
     G,
     pos,
     width=0.05,  # Thinner edges to reduce clutter
-    edge_color="grey",  # Edge color
+    edge_color="blue",  # Edge color
     alpha=1,  # Transparency for edges
 )
 
