@@ -22,8 +22,9 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 # Assuming ModifiedInception and ModifiedVGG are defined as in your provided code
 
 
-def load_model(model_path, model, device):
-    model.load_state_dict(torch.load(model_path, model, map_location=device))
+def load_model(model_path, model_class, device):
+    model = model_class()
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(data_config.DEVICE)
     return model
 
