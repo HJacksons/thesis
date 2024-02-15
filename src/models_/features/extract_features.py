@@ -11,16 +11,11 @@ class ModelFeatureExtractor:
 
     def prepare_feature_extractor(self):
         if self.model_type == "inception":
-            # Attach the hook to the output of the adaptive average pooling layer
-            self.attach_hook(
-                # For Inception, attach the hook to the adaptive average pooling layer
-                self.attach_hook(self.model.model.avgpool, self.generic_hook)
-            )  # Adjusted for Inception
+            # Correctly attach the hook to the output of the adaptive average pooling layer for Inception
+            self.attach_hook(self.model.model.avgpool, self.generic_hook)
         elif self.model_type == "vgg":
-            # Attach the hook to the last layer of the features component
-            self.attach_hook(
-                self.model.model.features[-1], self.generic_hook
-            )  # Adjusted for VGG
+            # Correctly attach the hook to the last layer of the features component for VGG
+            self.attach_hook(self.model.model.features[-1], self.generic_hook)
 
     def attach_hook(self, layer, hook_function):
         layer.register_forward_hook(hook_function)
