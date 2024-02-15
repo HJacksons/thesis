@@ -72,7 +72,7 @@ nx.draw_networkx_edges(
     pos,
     width=0.05,  # Thinner edges to reduce clutter
     edge_color="grey",  # Edge color
-    alpha=0.3,  # Transparency for edges
+    alpha=0.5,  # Transparency for edges
 )
 
 plt.axis("off")
