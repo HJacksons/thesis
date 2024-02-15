@@ -2244,6 +2244,35 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 optree = ["optree (>=0.9.1)"]
 
 [[package]]
+name = "torch-geometric"
+version = "2.4.0"
+description = "Graph Neural Network Library for PyTorch"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "torch_geometric-2.4.0-py3-none-any.whl", hash = "sha256:9d8eb5eec44382f4072aa5e835450f144e9edb9d164627e532e311880b6bdad0"},
+    {file = "torch_geometric-2.4.0.tar.gz", hash = "sha256:343c6906d0678f16553c2d02b7267d0ec77eafb5b44324070ebcf7da8a934557"},
+]
+
+[package.dependencies]
+jinja2 = "*"
+numpy = "*"
+psutil = ">=5.8.0"
+pyparsing = "*"
+requests = "*"
+scikit-learn = "*"
+scipy = "*"
+tqdm = "*"
+
+[package.extras]
+benchmark = ["matplotlib", "networkx", "pandas", "protobuf (<4.21)", "wandb"]
+dev = ["pre-commit", "torch_geometric[test]"]
+full = ["ase", "captum", "graphviz", "h5py", "matplotlib", "networkx", "numba", "opt_einsum", "pandas", "pgmpy", "pynndescent", "pytorch-memlab", "rdflib", "rdkit", "scikit-image", "statsmodels", "sympy", "tabulate", "torch_geometric[graphgym,modelhub]", "torchmetrics", "trimesh"]
+graphgym = ["hydra-core", "protobuf (<4.21)", "pytorch-lightning", "yacs"]
+modelhub = ["huggingface_hub"]
+test = ["onnx", "onnxruntime", "pytest", "pytest-cov"]
+
+[[package]]
 name = "torchsummary"
 version = "1.5.1"
 description = "Model summary in PyTorch similar to `model.summary()` in Keras"
@@ -2506,4 +2535,4 @@ sweeps = ["sweeps (>=0.2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9b8519b54d83076d3b63d44aa8d2f1c43c9224075d4d56787058731745fba4ee"
+content-hash = "483c677912b2c0fe549484d616d752f7c642dd492367aab3bace6318fac9c8b5"

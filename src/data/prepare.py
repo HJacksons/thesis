@@ -120,15 +120,15 @@ class DatasetPreparer:
         logging.info("Dataset preparation complete.")
 
         # visualize 3 samples from each of the train, validation, and test sets
-        plt.figure(figsize=(10, 10))
-        for i in range(3):
-            for j in range(3):
-                image, label = train_dataset[i * 3 + j]
-                plt.subplot(3, 3, i * 3 + j + 1)
-                plt.imshow(image.permute(1, 2, 0))
-                plt.title(label)
-                plt.axis("off")
-        plt.show()
+        # plt.figure(figsize=(10, 10))
+        # for i in range(3):
+        #     for j in range(3):
+        #         image, label = train_dataset[i * 3 + j]
+        #         plt.subplot(3, 3, i * 3 + j + 1)
+        #         plt.imshow(image.permute(1, 2, 0))
+        #         plt.title(label)
+        #         plt.axis("off")
+        # plt.show()
 
         return train_dl, vali_dl, test_dl
 
