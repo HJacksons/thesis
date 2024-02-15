@@ -13,7 +13,8 @@ class ModelFeatureExtractor:
         if self.model_type == "inception":
             # Attach the hook to the output of the adaptive average pooling layer
             self.attach_hook(
-                self.model.model.AuxLogits.fc, self.generic_hook
+                # For Inception, attach the hook to the adaptive average pooling layer
+                self.attach_hook(self.model.model.avgpool, self.generic_hook)
             )  # Adjusted for Inception
         elif self.model_type == "vgg":
             # Attach the hook to the last layer of the features component
