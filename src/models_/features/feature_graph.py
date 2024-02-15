@@ -2,38 +2,42 @@ import torch
 from torch_geometric.data import Data
 import torch_geometric.transforms as T
 from sklearn.metrics.pairwise import cosine_similarity
-from src.models_.features.extract_features_and_combine import main_extractor_combiner
+from scipy.spatial import KDTree
+import numpy as np
 import logging
 import os
 import wandb
 import matplotlib.pyplot as plt
 import torch_geometric.utils
 import networkx as nx
+from src.models_.features.extract_features_and_combine import main_extractor_combiner
 from src.data import data_config
 
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
-# Assuming combined_features is a tensor of shape [num_images, num_features]
+# Extract combined features
 combined_features, vgg19_features, inception_features, vgg19_labels = (
     main_extractor_combiner()
 )
 
-# Option 1: Fully connected graph (not recommended for large datasets)
-# edge_index = torch.combinations(torch.arange(features.size(0)), r=2).t()
+# Convert features to numpy for KDTree
+features_np = combined_features.cpu().numpy()
 
-# Option 2: Connect nodes based on similarity (simplified example)
-# Calculate cosine similarity between feature vectors
-similarity = cosine_similarity(combined_features.cpu().numpy())
-# Convert to torch tensor
-similarity = torch.from_numpy(similarity).type(torch.float)
+# Use KDTree for efficient k-NN search
+kdtree = KDTree(features_np)
+k = 5  # Number of neighbors to connect to, adjust based on your dataset
+distances, indices = kdtree.query(
+    features_np, k=k + 1
+)  # k+1 because the query includes the point itself
 
-# Define a threshold for connecting nodes
-threshold = 0.9  # This is an arbitrary value; adjust based on your dataset
+# Prepare edge_index for PyTorch Geometric
+source_nodes = np.repeat(np.arange(features_np.shape[0]), k)
+target_nodes = indices[
+    :, 1:
+].flatten()  # Exclude the first column which is the point itself
+edge_index = torch.tensor([source_nodes, target_nodes], dtype=torch.long)
 
-# Create edge indices based on the threshold
-edge_index = (similarity > threshold).nonzero(as_tuple=False).t()
-
-# Ensure edge_index is on the same device as features
+# Move edge_index to the same device as combined_features
 edge_index = edge_index.to(combined_features.device)
 
 # Create a graph data object
@@ -42,32 +46,33 @@ data = Data(x=combined_features, edge_index=edge_index)
 # Optionally, apply some transformations (e.g., normalization)
 data = T.NormalizeFeatures()(data)
 
+logging.basicConfig(level=logging.INFO)
 logging.info(f"Graph data object: {data}")
 
 # Convert to networkx graph
 G = torch_geometric.utils.to_networkx(data, to_undirected=True)
+
 # Plot the graph and color nodes based on VGG19 labels
 plt.figure(figsize=(8, 8))
 plt.title("Combined Features Graph")
 nx.draw_networkx(
     G,
-    pos=nx.spring_layout(G, seed=0),
-    with_labels=True,
-    node_size=800,
-    node_color=vgg19_labels,
+    pos=nx.spring_layout(G, seed=42),
+    with_labels=False,  # Set to True if you want labels, but it might clutter the visualization
+    node_size=50,  # Adjust size for better visibility
+    node_color=vgg19_labels.numpy(),  # Ensure labels are in correct format
     cmap="hsv",
     vmin=-2,
     vmax=3,
-    width=0.8,
+    width=0.5,
     edge_color="grey",
-    font_size=14,
+    font_size=12,
 )
-plt.axis("off")  # Optional: Hide the axes
+plt.axis("off")
 
-# Save the plot to a file
+# Save and log the plot
 plot_filename = "combined_features_graph.png"
 plt.savefig(plot_filename, format="png")
-plt.close()  # Close the plot to free up memory
+plt.close()
 
-# Log the image file to wandb
 wandb.log({"combined_features_graph": wandb.Image(plot_filename)})
