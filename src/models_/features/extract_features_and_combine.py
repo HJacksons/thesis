@@ -22,21 +22,24 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 # Assuming ModifiedInception and ModifiedVGG are defined as in your provided code
 
 
-def load_model(model_path, model_class, device):
-    model = model_class()
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.to(data_config.DEVICE)
-    return model
+def load_model(model_path, modified_model_class, device):
+    # Instantiate the base model (Inception or VGG19) without pretrained weights
+    base_model = modified_model_class().to(device)
+    # Load the state dict into the base model
+    base_model.load_state_dict(torch.load(model_path, map_location=device))
+    return base_model
 
 
 def main_feature_extraction():
     # Initialize device
     # Load models
+    # inception_model = Inception()
     inception_model = load_model(
         "src/models_/_saved_models/inceptionv3100.pth",
         ModifiedInception,
         data_config.DEVICE,
     )
+    # v99_model = VGG19()
     vgg_model = load_model(
         "src/models_/_saved_models/vgg19_all_layers_100.pth",
         ModifiedVGG,
@@ -47,7 +50,7 @@ def main_feature_extraction():
     inception_dataset = DatasetPreparer(model_type="inception")
     inception_train_loader, _, _ = inception_dataset.prepare_dataset()
 
-    vgg19_dataset = DatasetPreparer(model_type="vit")
+    vgg19_dataset = DatasetPreparer(model_type="vgg19")
     vgg19_train_loader, _, _ = vgg19_dataset.prepare_dataset()
 
     # Extract features
