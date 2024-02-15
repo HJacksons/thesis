@@ -36,7 +36,7 @@ def extract_features(model, loader, device):
 
     with torch.no_grad():
         for images, labels in loader:
-            images = images.to(device)
+            images = images.to(data_config.DEVICE)
             features = model(images)
             features_list.append(features.cpu())  # Move features to CPU
             labels_list.append(labels)
