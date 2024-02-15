@@ -13,101 +13,70 @@ import wandb
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
-import logging
 
 
 wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
-def load_model(model_path, model_class, device, model_type):
-    original_model = model_class()
-    original_model.load_state_dict(torch.load(model_path, map_location=device))
-    original_model.to(device)
-    # Depending on the model_type, wrap the original model with its Modified version
-    if model_type == "inception":
-        return ModifiedInception(original_model)
-    elif model_type == "vgg":
-        return ModifiedVGG(original_model)
-    else:
-        raise ValueError(f"Unsupported model type: {model_type}")
+import torch
+from src.data.prepare import DatasetPreparer  # Ensure this is the correct import path
+from src.models_.CNNs.inceptionV3 import (
+    Inception,
+)  # Ensure this is the correct import path
+from src.models_.CNNs.vgg19 import VGG19  # Ensure this is the correct import path
+from src.data import data_config
+from torch.utils.data import DataLoader
+
+# Assuming ModifiedInception and ModifiedVGG are defined as in your provided code
 
 
-def main_extractor_combiner():
-    # Load the Inception and VGG19 models
+def load_model(model_path, model_class, device):
+    # Instantiate and load the pretrained model
+    model = model_class(pretrained=False)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.to(device)
+    return model
+
+
+def main_feature_extraction():
+    # Initialize device
+    device = torch.device(data_config.DEVICE if torch.cuda.is_available() else "cpu")
+
+    # Load models
     inception_model = load_model(
-        "src/models_/_saved_models/inceptionv3100.pth",
-        Inception,
-        data_config.DEVICE,
-        "inception",
+        "src/models_/_saved_models/inceptionv3100.pth", ModifiedInception, device
     )
-    vgg19_model = load_model(
-        "src/models_/_saved_models/vgg19_all_layers_100.pth",
-        VGG19,
-        data_config.DEVICE,
-        "vgg",
+    vgg_model = load_model(
+        "src/models_/_saved_models/vgg19_all_layers_100.pth", ModifiedVGG, device
     )
 
-    # Prepare the dataset
-    inception_dataset = DatasetPreparer(model_type="inception")
-    _, _, inception_test_loader = inception_dataset.prepare_dataset()
+    # Prepare data loaders
+    dataset_preparer = DatasetPreparer()
+    _, _, test_loader = dataset_preparer.prepare_dataset()  # Adjust as necessary
 
-    vgg19_dataset = DatasetPreparer(model_type="vgg19")
-    _, _, vgg19_test_loader = vgg19_dataset.prepare_dataset()
-
-    # Extract features for both models
+    # Extract features
     inception_features, inception_labels = extract_features(
-        inception_model, inception_test_loader, data_config.DEVICE
+        inception_model, test_loader, device
     )
-    vgg19_features, vgg19_labels = extract_features(
-        vgg19_model, vgg19_test_loader, data_config.DEVICE
-    )
+    vgg_features, vgg_labels = extract_features(vgg_model, test_loader, device)
 
-    # Combined features; labels are assumed to be the same for both models
-    combined_features = torch.cat([inception_features, vgg19_features], dim=1)
+    # Combine features
+    combined_features = torch.cat([inception_features, vgg_features], dim=1)
 
-    logging.info(f"Combined features shape: {combined_features.shape}")
-    logging.info(f"ViT features shape: {vgg19_features.shape}")
-    logging.info(f"Inception features shape: {inception_features.shape}")
-    logging.info(f"ViT labels shape: {vgg19_labels.shape}")
-    logging.info(f"Inception labels shape: {inception_labels.shape}")
-    logging.info(f"Inception features: {inception_features}")
-    logging.info(f"ViT features: {vgg19_features}")
-    logging.info(f"Combined features: {combined_features}")
-    logging.info(f"ViT labels: {vgg19_labels}")
-    logging.info(f"Inception labels: {inception_labels}")
+    # Log or print shapes for verification
+    print(f"Inception Features Shape: {inception_features.shape}")
+    print(f"VGG Features Shape: {vgg_features.shape}")
+    print(f"Combined Features Shape: {combined_features.shape}")
+    print(
+        f"Labels Shape: {inception_labels.shape}"
+    )  # Assuming labels are the same for both
 
-    wandb.log(
-        {
-            "Combined Features": combined_features,
-            "Inception Features": inception_features,
-            "vgg19 Features": vgg19_features,
-            "Inception Labels": inception_labels,
-            "vgg19 Labels": vgg19_labels,
-        }
-    )
-
-    # Export features to excel
-
-    # df = pd.DataFrame(combined_features.numpy())
-    # df.to_excel("combined_features.xlsx", index=False)
-    # df = pd.DataFrame(inception_features.numpy())
-    # df.to_excel("inception_features.xlsx", index=False)
-    # df = pd.DataFrame(vgg19_features.numpy())
-    # df.to_excel("ViT_features.xlsx", index=False)
-    # df = pd.DataFrame(inception_labels.numpy())
-    # df.to_excel("inception_labels.xlsx", index=False)
-    # df = pd.DataFrame(vgg19_labels.numpy())
-    # df.to_excel("ViT_labels.xlsx", index=False)
-
-    return (
-        combined_features,
-        vgg19_features,
-        inception_features,
-        vgg19_labels,
-        inception_labels,
-    )
+    # Return the extracted and combined features, and labels
+    return combined_features, inception_features, vgg_features, inception_labels
 
 
 if __name__ == "__main__":
-    main_extractor_combiner()
+    combined_features, inception_features, vgg_features, labels = (
+        main_feature_extraction()
+    )
