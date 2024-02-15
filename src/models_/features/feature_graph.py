@@ -43,9 +43,6 @@ data = T.NormalizeFeatures()(data)
 
 logging.info(f"Graph data object: {data}")
 
-# Log the graph data object to WandB
-wandb.log({"graph": wandb.Object3D(data, "Graph")})
-
 # Convert to networkx graph
 G = torch_geometric.utils.to_networkx(data, to_undirected=True)
 # Plot the graph and color nodes based on VGG19 labels
