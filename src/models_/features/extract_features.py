@@ -27,7 +27,7 @@ class ModelFeatureExtractor:
         layer.register_forward_hook(self.inception_hook)
 
     def attach_vgg_hook(self):
-        layer = self.model.features
+        layer = self.model.model.features
         layer.register_forward_hook(self.vgg_hook)
 
     def inception_hook(self, module, inputs, output):
