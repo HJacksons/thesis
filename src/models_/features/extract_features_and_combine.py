@@ -57,14 +57,14 @@ def main_extractor_combiner():
     combined_features = torch.cat([inception_features, vgg19_features], dim=1)
 
     logging.info(f"Combined features shape: {combined_features.shape}")
-    logging.info(f"ViT features shape: {vgg19_features.shape}")
+    logging.info(f"vgg19 features shape: {vgg19_features.shape}")
     logging.info(f"Inception features shape: {inception_features.shape}")
-    logging.info(f"ViT labels shape: {vgg19_labels.shape}")
+    logging.info(f"vgg19 labels shape: {vgg19_labels.shape}")
     logging.info(f"Inception labels shape: {inception_labels.shape}")
     logging.info(f"Inception features: {inception_features}")
-    logging.info(f"ViT features: {vgg19_features}")
+    logging.info(f"vgg19 features: {vgg19_features}")
     logging.info(f"Combined features: {combined_features}")
-    logging.info(f"ViT labels: {vgg19_labels}")
+    logging.info(f"vgg19 labels: {vgg19_labels}")
     logging.info(f"Inception labels: {inception_labels}")
     #
     # wandb.log(
