@@ -11,27 +11,23 @@ class ModelFeatureExtractor:
 
     def prepare_feature_extractor(self):
         if self.model_type == "inception":
-            # Ensure this is the correct layer for your Inception model
+            # Attach the hook to the output of the adaptive average pooling layer
             self.attach_hook(
-                (
-                    self.model.Mixed_7c
-                    if hasattr(self.model, "Mixed_7c")
-                    else self.model.model.Mixed_7c
-                ),
-                self.generic_hook,
-            )
+                self.model.model.AuxLogits.fc, self.generic_hook
+            )  # Adjusted for Inception
         elif self.model_type == "vgg":
-            # Ensure this is the correct layer for your VGG model
-            self.attach_hook(self.model.features[-1], self.generic_hook)
+            # Attach the hook to the last layer of the features component
+            self.attach_hook(
+                self.model.model.features[-1], self.generic_hook
+            )  # Adjusted for VGG
 
     def attach_hook(self, layer, hook_function):
         layer.register_forward_hook(hook_function)
 
     def generic_hook(self, module, inputs, output):
-        if self.model_type == "inception":
-            output = torch.nn.functional.adaptive_avg_pool2d(output, (1, 1))
-        # For VGG, directly flatten the output if no pooling is needed
-        self.features = torch.flatten(output, start_dim=1).detach()
+        # No need for conditional pooling/flattening based on model type here
+        # Assuming output is already in the desired format for both models
+        self.features = output.detach()
 
     def extract_features(self, loader):
         self.model.eval()
@@ -41,8 +37,9 @@ class ModelFeatureExtractor:
             for images, label in loader:
                 images = images.to(data_config.DEVICE)
                 self.model(images)  # Triggers the hook and updates self.features
-                features.append(self.features)
-                labels.append(label)
+                if self.features is not None:
+                    features.append(self.features)
+                    labels.append(label)
 
         features_tensor = torch.cat(features, dim=0)
         labels_tensor = torch.cat(labels, dim=0)
