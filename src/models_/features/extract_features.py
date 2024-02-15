@@ -43,7 +43,7 @@ class VGG19Features(nn.Module):
     def __init__(self, trained_model):
         super(VGG19Features, self).__init__()
         # Retain the convolutional base
-        self.features = trained_model.features
+        self.features = trained_model.model.features
 
     def forward(self, x):
         # Forward pass through the convolutional base
