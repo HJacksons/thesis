@@ -1,90 +1,85 @@
 import torch
 from src.data import data_config
+from src.data.prepare import DatasetPreparer
+from src.models_.CNNs.inceptionV3 import Inception
+from src.models_.ViT.ViT import ViT
+from src.models_.CNNs.vgg19 import VGG19
+import torch.nn as nn
 
-global features_inception, features_vit
+# Initialize the models
+inception_model = Inception()
+vgg19_model = VGG19()
+
+# Load the trained weights
+inception_model.load_state_dict(
+    torch.load("src/models_/_saved_models/inceptionv3100.pth")
+)
+vgg19_model.load_state_dict(
+    torch.load("src/models_/_saved_models/vgg19_all_layers_100.pth")
+)
+
+# Set models to evaluation mode
+inception_model.eval()
+vgg19_model.eval()
 
 
-class ModelFeatureExtractor:
-    def __init__(self, model, model_type="inception"):
-        self.model = model
-        self.model_type = model_type
-        self.prepare_feature_extractor()
+class InceptionFeatures(nn.Module):
+    def __init__(self, trained_model):
+        super(InceptionFeatures, self).__init__()
+        # Copy all layers except the final fully connected layer
+        self.features = nn.Sequential(*list(trained_model.children())[:-1])
 
-    # Prepare the feature extractor
-    def prepare_feature_extractor(self):
+    def forward(self, x):
+        # Forward pass through the modified architecture
+        x = self.features(x)
+        x = torch.flatten(x, start_dim=1)
+        return x
 
-        if self.model_type == "inception":
-            self.attach_inception_hook()
-        elif self.model_type == "vit":
-            self.attach_ViT_hook()
 
-    # Attach a hook to the Inception model
-    def attach_inception_hook(self):
-        global features_inception
-        features_inception = None
-        layer = self.model.model.Mixed_7c
-        layer.register_forward_hook(self.inception_hook)
+inception_features_model = InceptionFeatures(inception_model)
 
-    # Attach a hook to the ViT model
-    def attach_ViT_hook(self):
-        global features_vit
-        features_vit = None
-        self.model.vit.encoder.layer[-1].register_forward_hook(self.vit_hook)
 
-    def inception_hook(self, module, inputs, output):
-        global features_inception
-        # For 4D output, apply adaptive average pooling to make it [batch_size, channels, 1, 1]
-        pooled_output = torch.nn.functional.adaptive_avg_pool2d(output, (1, 1))
-        # Flatten the output to make it [batch_size, channels]
-        features_inception = torch.flatten(pooled_output, 1).detach()
+class VGG19Features(nn.Module):
+    def __init__(self, trained_model):
+        super(VGG19Features, self).__init__()
+        # Retain the convolutional base
+        self.features = trained_model.features
 
-    def vit_hook(self, module, inputs, output):
-        global features_vit
-        # If output is already in the desired shape [batch_size, features], just detach
-        features_vit = output[0][:, 0].detach()
+    def forward(self, x):
+        # Forward pass through the convolutional base
+        x = self.features(x)
+        x = torch.flatten(x, start_dim=1)
+        return x
 
-    # # Extract features from the test loader
-    # def extract_features(self, loader):
-    #     self.model.eval()
-    #     features = []
-    #     labels = []
-    #     with torch.no_grad():
-    #         for images, label in loader:
-    #             images = images.to(data_config.DEVICE)
-    #             self.model(images)  # This will call the hook
-    #             if self.model_type == "inception":
-    #                 features.append(features_inception)
-    #             elif self.model_type == "vit":
-    #                 features.append(features_vit)
-    #             labels.append(label)
-    #
-    #     features_tensor = torch.cat(features, dim=0)
-    #     labels_tensor = torch.cat(labels, dim=0)
-    #     return features_tensor, labels_tensor
 
-    # Extract features from a single image in the test loader
-    def extract_features(self, loader):
-        self.model.eval()
-        features = None
-        label = None
-        with torch.no_grad():
-            # Get the first batch of images
-            images, labels = next(iter(loader))
-            image = (
-                images[0].to(data_config.DEVICE).unsqueeze(0)
-            )  # Get the first image and add batch dimension
-            self.model(image)  # This will call the hook and update features accordingly
+vgg19_features_model = VGG19Features(vgg19_model)
 
-            if self.model_type == "inception":
-                features = features_inception.squeeze(
-                    0
-                )  # Assume features_inception is updated by the hook
-            elif self.model_type == "vit":
-                features = features_vit.squeeze(
-                    0
-                )  # Assume features_vit is updated by the hook
+# Prepare the dataset
+inception_dataset = DatasetPreparer(model_type="inception")
+inception_train_loader, _, _ = inception_dataset.prepare_dataset()
 
-            label = labels[0]  # Get the label of the first image
-            features_tensor = features
-            label_tensor = label
-        return features_tensor, label_tensor
+vgg19_dataset = DatasetPreparer(model_type="vgg19")
+vgg19_train_loader, _, _ = vgg19_dataset.prepare_dataset()
+
+
+def extract_features(model, dataloader):
+    model.eval()  # Ensure the model is in evaluation mode
+    features_list = []
+    with torch.no_grad():  # No gradients needed
+        for (
+            images,
+            _,
+        ) in dataloader:  # Assuming labels are not needed for feature extraction
+            features = model(images)  # Extract features
+            features_list.append(features.cpu())
+    features = torch.cat(features_list, dim=0)
+    return features
+
+
+inception_features = extract_features(
+    inception_features_model, inception_train_loader
+)  # or train_loader, vali_loader
+vgg19_features = extract_features(vgg19_features_model, vgg19_train_loader)  # Same here
+
+print("Inception features shape:", inception_features.shape)
+print("VGG19 features shape:", vgg19_features.shape)
