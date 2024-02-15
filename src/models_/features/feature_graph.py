@@ -59,12 +59,12 @@ nx.draw_networkx(
     G,
     pos=nx.spring_layout(G, seed=42),
     with_labels=False,  # Set to True if you want labels, but it might clutter the visualization
-    node_size=50,  # Adjust size for better visibility
+    node_size=20,  # Adjust size for better visibility
     node_color=vgg19_labels.numpy(),  # Ensure labels are in correct format
     cmap="hsv",
     vmin=-2,
     vmax=3,
-    width=0.5,
+    width=0.1,
     edge_color="grey",
     font_size=12,
 )
