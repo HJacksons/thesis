@@ -33,7 +33,7 @@ def extract_features_directly(
 
     # Navigate to the layer
     target_layer = model
-    for attr in layer_path:
+    for attr in layer_path.split("."):
         target_layer = getattr(target_layer, attr)
 
     # Define a hook to capture the output of the specified layer
