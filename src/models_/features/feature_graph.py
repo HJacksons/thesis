@@ -53,26 +53,35 @@ logging.info(f"Graph data object: {data}")
 G = torch_geometric.utils.to_networkx(data, to_undirected=True)
 
 # Plot the graph and color nodes based on VGG19 labels
-plt.figure(figsize=(8, 8))
+plt.figure(figsize=(15, 15))  # Increased figure size for better clarity
 plt.title("Combined Features Graph")
-nx.draw_networkx(
+
+# Use a Fruchterman-Reingold layout to spread nodes and reduce overlap
+pos = nx.spring_layout(G, k=0.15, iterations=20)
+
+nx.draw_networkx_nodes(
     G,
-    pos=nx.spring_layout(G, seed=42),
-    with_labels=False,  # Set to True if you want labels, but it might clutter the visualization
-    node_size=20,  # Adjust size for better visibility
+    pos,
+    node_size=50,  # Increased node size for visibility
     node_color=vgg19_labels.numpy(),  # Ensure labels are in correct format
-    cmap="hsv",
-    vmin=-2,
-    vmax=3,
-    width=0.1,
-    edge_color="grey",
-    font_size=12,
+    cmap=plt.cm.hsv,  # Color map to differentiate labels
 )
+
+nx.draw_networkx_edges(
+    G,
+    pos,
+    width=0.05,  # Thinner edges to reduce clutter
+    edge_color="grey",  # Edge color
+    alpha=0.3,  # Transparency for edges
+)
+
 plt.axis("off")
 
 # Save and log the plot
 plot_filename = "combined_features_graph.png"
-plt.savefig(plot_filename, format="png")
+plt.savefig(
+    plot_filename, format="png", dpi=300
+)  # Higher DPI for better quality images
 plt.close()
 
 wandb.log({"combined_features_graph": wandb.Image(plot_filename)})
