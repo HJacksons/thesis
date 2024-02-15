@@ -23,9 +23,7 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 
 def load_model(model_path, model, device):
-    model.load_state_dict(
-        torch.load(model_path, model, map_location=data_config.DEVICE)
-    )
+    model.load_state_dict(torch.load(model_path, model, map_location=device))
     model.to(data_config.DEVICE)
     return model
 
