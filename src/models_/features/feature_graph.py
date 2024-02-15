@@ -9,6 +9,7 @@ import wandb
 import matplotlib.pyplot as plt
 import torch_geometric.utils
 import networkx as nx
+from src.data import data_config
 
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
@@ -33,7 +34,7 @@ threshold = 0.9  # This is an arbitrary value; adjust based on your dataset
 edge_index = (similarity > threshold).nonzero(as_tuple=False).t()
 
 # Ensure edge_index is on the same device as features
-edge_index = edge_index.to(combined_features.data_config.DEVICE)
+edge_index = edge_index.to(combined_features.device)
 
 # Create a graph data object
 data = Data(x=combined_features, edge_index=edge_index)
