@@ -24,8 +24,8 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 combined_features, vgg19_features, inception_features, vgg19_labels = (
     main_extractor_combiner()
 )
-vgg19_labels_tensor = torch.tensor(vgg19_labels, dtype=torch.long)
-
+vgg19_labels_tensor = vgg19_labels.clone().detach()
+vgg19_labels_tensor = vgg19_labels_tensor.to(data_config.DEVICE)
 # Convert features to numpy for KDTree
 features_np = combined_features.cpu().numpy()
 
@@ -41,8 +41,12 @@ source_nodes = np.repeat(np.arange(features_np.shape[0]), k)
 target_nodes = indices[
     :, 1:
 ].flatten()  # Exclude the first column which is the point itself
-edge_index = torch.tensor([source_nodes, target_nodes], dtype=torch.long)
-
+edge_index_np = np.array(
+    [source_nodes, target_nodes]
+)  # Convert to a single numpy.ndarray
+edge_index = torch.tensor(edge_index_np, dtype=torch.long).to(
+    data_config.DEVICE
+)  # Then convert
 # Move edge_index to the same device as combined_features
 edge_index = edge_index.to(combined_features.device)
 
@@ -51,6 +55,7 @@ data = Data(x=combined_features, edge_index=edge_index, y=vgg19_labels_tensor)
 
 # Optionally, apply some transformations (e.g., normalization)
 data = T.NormalizeFeatures()(data)
+data = data.to(data_config.DEVICE)
 #
 # logging.basicConfig(level=logging.INFO)
 # logging.info(f"Graph data object: {data}")
