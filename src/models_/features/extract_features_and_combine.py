@@ -78,19 +78,20 @@ def main_extractor_combiner():
 
     # Export features to excel
 
-    import pickle
+    # import pickle
+    #
+    # with open("src/models_/_saved_models/vgg19_features.pkl", "wb") as f:
+    #     pickle.dump(vgg19_features, f)
+    #
+    # with open("src/models_/_saved_models/inceptionv3_features.pkl", "wb") as f:
+    #     pickle.dump(inception_features, f)
+    #
+    # return combined_features, vgg19_features, inception_features, vgg19_labels
+    #
 
-    with open("src/models_/_saved_models/vgg19_features.pkl", "wb") as f:
-        pickle.dump(vgg19_features, f)
 
-    with open("src/models_/_saved_models/inceptionv3_features.pkl", "wb") as f:
-        pickle.dump(inception_features, f)
-
-    return combined_features, vgg19_features, inception_features, vgg19_labels
-
-
-if __name__ == "__main__":
-    main_extractor_combiner()
-#
-# # TODO
+# if __name__ == "__main__":
+#     main_extractor_combiner()
+# #
+# # # TODO
 # Analyse the combined features

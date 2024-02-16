@@ -33,13 +33,19 @@ class CombinedAttentionModel(nn.Module):
         super(CombinedAttentionModel, self).__init__()
         self.inception_attention = FeatureAttention(inception_feature_dim)
         self.vgg19_attention = FeatureAttention(vgg19_feature_dim)
+        self.fusion_layer = nn.Linear(2 * inception_feature_dim, 512)
         # Omitting the feature_combiner since we're focusing on saving the attention mechanism
 
     def forward(self, inception_features, vgg19_features):
         weighted_inception_features = self.inception_attention(inception_features)
         weighted_vgg19_features = self.vgg19_attention(vgg19_features)
+        # Feature fusion: concatenation and linear layer
+        combined_f = torch.cat(
+            (weighted_inception_features, weighted_vgg19_features), dim=1
+        )
+        combined_feature = self.fusion_layer(combined_f)
         # Directly return weighted features without combining them for ViT
-        return weighted_inception_features, weighted_vgg19_features
+        return combined_feature
 
 
 # Prepare dataset and loader
