@@ -59,11 +59,13 @@ plt.title("Combined Features Graph")
 
 # Use a Fruchterman-Reingold layout to spread nodes and reduce overlap
 pos = nx.spring_layout(G, k=0.15, iterations=20)
-node_colors = (
-    vgg19_labels_tensor.numpy()
-    if isinstance(vgg19_labels_tensor, torch.Tensor)
-    else vgg19_labels
-)
+# Explicit color mapping for three classes
+color_map = {
+    0: "red",
+    1: "cyan",
+    2: "green",
+}  # Example: 0 - Healthy, 1 - Disease 1, 2 - Disease 2
+node_colors = [color_map[label] for label in data.y.cpu().numpy()]
 
 nx.draw_networkx_nodes(
     G,
