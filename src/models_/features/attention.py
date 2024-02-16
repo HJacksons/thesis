@@ -34,8 +34,8 @@ class FeatureAttention(nn.Module):
 class CombinedAttentionModel(nn.Module):
     def __init__(self, inception_feature_dim, vgg19_feature_dim):
         super(CombinedAttentionModel, self).__init__()
-        self.inception_attention = FeatureAttention(inception_feature_dim[1])
-        self.vgg19_attention = FeatureAttention(vgg19_feature_dim[1])
+        self.inception_attention = FeatureAttention(inception_feature_dim)
+        self.vgg19_attention = FeatureAttention(vgg19_feature_dim)
         # Assuming the combined feature vector feeds into ViT, adjust dimensions as necessary
         self.feature_combiner = nn.Linear(
             inception_feature_dim + vgg19_feature_dim, 768
