@@ -71,7 +71,7 @@ for epoch in range(num_epochs):
     epoch_loss = 0.0
     epoch_acc = 0.0
     for batch in feature_loader:
-        inception_features, vgg19_features, labels = batch
+        inception_features, vgg19_features, labels = batch[0], batch[1], batch[2]
 
         # Move tensors to the correct device
         inception_features = inception_features.to(data_config.DEVICE)
