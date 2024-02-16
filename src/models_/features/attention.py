@@ -13,6 +13,8 @@ from torch.utils.data import TensorDataset, DataLoader
 combined_features, vgg19_features, inception_features, vgg19_labels = (
     main_extractor_combiner()
 )
+print("Inception Features Shape:", inception_features.shape)
+print("VGG19 Features Shape:", vgg19_features.shape)
 
 dataset = TensorDataset(vgg19_features, inception_features, vgg19_labels)
 feature_loader = DataLoader(dataset, batch_size=32, shuffle=True)
