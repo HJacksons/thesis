@@ -86,7 +86,7 @@ def main_extractor_combiner():
     # with open("src/models_/_saved_models/inceptionv3_features.pkl", "wb") as f:
     #     pickle.dump(inception_features, f)
     #
-    # return combined_features, vgg19_features, inception_features, vgg19_labels
+    return combined_features, vgg19_features, inception_features, vgg19_labels
     #
 
 
