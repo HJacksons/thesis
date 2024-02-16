@@ -7,15 +7,15 @@ from src.data.prepare import DatasetPreparer
 from src.data import data_config
 import matplotlib.pyplot as plt
 from src.models_.features.extract_features_and_combine import main_extractor_combiner
+from torch.utils.data import TensorDataset, DataLoader
 
 
 combined_features, vgg19_features, inception_features, vgg19_labels = (
     main_extractor_combiner()
 )
 
-# Prepare the dataset
-inception_dataset = DatasetPreparer(model_type="inception")
-train_loader, _, _ = inception_dataset.prepare_dataset()
+dataset = TensorDataset(vgg19_features, inception_features, vgg19_labels)
+feature_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 
 class FeatureAttention(nn.Module):
@@ -70,12 +70,7 @@ num_epochs = 10
 for epoch in range(num_epochs):
     epoch_loss = 0.0
     epoch_acc = 0.0
-    for (inception_features, vgg19_features), labels in train_loader:
-        inception_features, vgg19_features, labels = (
-            inception_features.to(data_config.DEVICE),
-            vgg19_features.to(data_config.DEVICE),
-            labels.to(data_config.DEVICE),
-        )
+    for (inception_features, vgg19_features), labels in feature_loader:
 
         optimizer.zero_grad()
         outputs = model(inception_features, vgg19_features)
@@ -88,8 +83,8 @@ for epoch in range(num_epochs):
         epoch_loss += loss.item()
         epoch_acc += acc.item()
 
-    epoch_loss /= len(train_loader)
-    epoch_acc /= len(train_loader)
+    epoch_loss /= len(feature_loader)
+    epoch_acc /= len(feature_loader)
 
     train_losses.append(epoch_loss)
     train_accuracies.append(epoch_acc)
