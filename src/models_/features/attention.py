@@ -33,7 +33,7 @@ class CombinedAttentionModel(nn.Module):
         super(CombinedAttentionModel, self).__init__()
         self.inception_attention = FeatureAttention(inception_feature_dim)
         self.vgg19_attention = FeatureAttention(vgg19_feature_dim)
-        self.fusion_layer = nn.Linear(2 * inception_feature_dim, 512)
+        self.fusion_layer = nn.Linear(2 * inception_feature_dim, 4096)
 
     def forward(self, inception_features, vgg19_features):
         weighted_inception_features = self.inception_attention(inception_features)
