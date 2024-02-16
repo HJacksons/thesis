@@ -132,7 +132,7 @@ class GCN(torch.nn.Module):
 num_features = data.num_features
 hidden_dim = 64
 output_dim = len(torch.unique(data.y))
-model = GCN(num_features, hidden_dim, output_dim).to(data.x.device)
+model = GCN(num_features, hidden_dim, output_dim).to(data_config.DEVICE)
 optimizer = Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 
 
