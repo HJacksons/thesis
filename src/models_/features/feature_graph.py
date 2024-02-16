@@ -65,7 +65,7 @@ color_map = {
     1: "cyan",
     2: "green",
 }  # Example: 0 - Healthy, 1 - Disease 1, 2 - Disease 2
-node_colors = [color_map[label] for label in data.y.cpu().numpy()]
+node_colors = [color_map[label.item()] for label in data.y.cpu().numpy()]
 
 nx.draw_networkx_nodes(
     G,
