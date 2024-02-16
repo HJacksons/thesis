@@ -70,7 +70,13 @@ num_epochs = 10
 for epoch in range(num_epochs):
     epoch_loss = 0.0
     epoch_acc = 0.0
-    for (inception_features, vgg19_features), labels in feature_loader:
+    for batch in feature_loader:
+        inception_features, vgg19_features, labels = batch
+
+        # Move tensors to the correct device
+        inception_features = inception_features.to(data_config.DEVICE)
+        vgg19_features = vgg19_features.to(data_config.DEVICE)
+        labels = labels.to(data_config.DEVICE)
 
         optimizer.zero_grad()
         outputs = model(inception_features, vgg19_features)
