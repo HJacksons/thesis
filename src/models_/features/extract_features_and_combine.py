@@ -78,22 +78,19 @@ def main_extractor_combiner():
 
     # Export features to excel
 
-    # df = pd.DataFrame(combined_features.cpu().numpy())
-    # df.to_csv("combined_features.csv", index=False)
-    # df = pd.DataFrame(inception_features.cpu().numpy())
-    # df.to_csv("inception_features.csv", index=False)
-    # df = pd.DataFrame(vgg19_features.cpu().numpy())
-    # df.to_csv("vgg19_features.csv", index=False)
-    # df = pd.DataFrame(inception_labels.cpu().numpy())
-    # df.to_csv("inception_labels.csv", index=False)
-    # df = pd.DataFrame(vgg19_labels.cpu().numpy())
-    # df.to_csv("vgg19_labels.csv", index=False)
+    import pickle
+
+    with open("src/models_/_saved_models/vgg19_features.pkl", "wb") as f:
+        pickle.dump(vgg19_features, f)
+
+    with open("src/models_/_saved_models/inceptionv3_features.pkl", "wb") as f:
+        pickle.dump(inception_features, f)
 
     return combined_features, vgg19_features, inception_features, vgg19_labels
 
 
-# if __name__ == "__main__":
-#     main_extractor_combiner()
+if __name__ == "__main__":
+    main_extractor_combiner()
 #
 # # TODO
 # Analyse the combined features
