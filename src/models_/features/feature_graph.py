@@ -15,6 +15,8 @@ from src.models_.features.extract_features_and_combine import main_extractor_com
 from src.data import data_config
 from torch.optim import Adam
 import torch.nn.functional as F
+from sklearn.model_selection import train_test_split
+
 
 wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
@@ -97,12 +99,19 @@ data = T.NormalizeFeatures()(data)
 #
 # wandb.log({"combined_features_graph": wandb.Image(plot_filename)})
 
-# Create a training mask
+# Split data into training and validation sets
 num_nodes = data.num_nodes
+nodes = np.arange(num_nodes)
+train_nodes, val_nodes = train_test_split(nodes, test_size=0.2, random_state=42)
+
 train_mask = torch.zeros(num_nodes, dtype=torch.bool)
-train_indices = torch.randperm(num_nodes)[: int(0.8 * num_nodes)]  # 80% for training
-train_mask[train_indices] = True
+train_mask[train_nodes] = True
+
+val_mask = torch.zeros(num_nodes, dtype=torch.bool)
+val_mask[val_nodes] = True
+
 data.train_mask = train_mask
+data.val_mask = val_mask
 
 
 class GCN(torch.nn.Module):
@@ -119,18 +128,12 @@ class GCN(torch.nn.Module):
         return x
 
 
-# Parameters
+# Model initialization
 num_features = data.num_features
-hidden_dim = 64  # Example hidden dimension
-output_dim = len(torch.unique(data.y))  # Assuming y contains class labels
-
-model = GCN(num_features=num_features, hidden_dim=hidden_dim, output_dim=output_dim)
+hidden_dim = 64
+output_dim = len(torch.unique(data.y))
+model = GCN(num_features, hidden_dim, output_dim).to(data.x.device)
 optimizer = Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-
-# Move model and data to the same device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = model.to(device)
-data = data.to(device)
 
 
 def train():
@@ -143,18 +146,23 @@ def train():
     return loss.item()
 
 
-def evaluate():
+def evaluate(mask):
     model.eval()
-    _, pred = model(data).max(dim=1)
-    correct = float(pred[data.train_mask].eq(data.y[data.train_mask]).sum().item())
-    acc = correct / data.train_mask.sum().item()
+    out = model(data)
+    pred = out.argmax(dim=1)
+    correct = float(pred[mask].eq(data.y[mask]).sum().item())
+    acc = correct / mask.sum().item()
     return acc
 
 
-# Training loop
-epochs = 200
-for epoch in range(epochs):
+# Training loop with validation
+for epoch in range(200):
     loss = train()
-    if epoch % 10 == 0:
-        acc = evaluate()
-        logging.info(f"Epoch: {epoch+1}, Loss: {loss:.4f}, Acc: {acc:.4f}")
+    train_acc = evaluate(data.train_mask)
+    val_acc = evaluate(data.val_mask)
+    logging.info(
+        f"Epoch: {epoch+1}, Loss: {loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}"
+    )
+    wandb.log(
+        {"epoch": epoch + 1, "loss": loss, "train_acc": train_acc, "val_acc": val_acc}
+    )
