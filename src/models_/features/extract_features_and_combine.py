@@ -33,10 +33,10 @@ def main_extractor_combiner():
 
     # Prepare the dataset
     inception_dataset = DatasetPreparer(model_type="inception")
-    _, _, inception_test_loader = inception_dataset.prepare_dataset()
+    inception_train_loader, _, _ = inception_dataset.prepare_dataset()
 
     vgg19_dataset = DatasetPreparer(model_type="vgg19")
-    _, _, vgg19_test_loader = vgg19_dataset.prepare_dataset()
+    vgg19_train_loader, _, _ = vgg19_dataset.prepare_dataset()
 
     # Extract features for both models
     inception_feature_extractor = ModelFeatureExtractor(
@@ -45,10 +45,10 @@ def main_extractor_combiner():
     vgg19_feature_extractor = ModelFeatureExtractor(vgg19_model, model_type="vgg19")
 
     inception_features, inception_labels = inception_feature_extractor.extract_features(
-        inception_test_loader
+        inception_train_loader
     )
     vgg19_features, vgg19_labels = vgg19_feature_extractor.extract_features(
-        vgg19_test_loader
+        vgg19_train_loader
     )
 
     # Combined features; labels are the same for both models
