@@ -43,7 +43,6 @@ class CombinedAttentionModel(nn.Module):
         combined_features = torch.cat(
             (weighted_inception_features, weighted_vgg19_features), dim=1
         )
-        combined_features = F.relu(combined_features)  # Non-linearity
 
         combined_features = self.fusion_layer(combined_features)
 
