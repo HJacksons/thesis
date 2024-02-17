@@ -20,6 +20,7 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 combined_features, vgg19_features, inception_features, vgg19_labels = (
     main_extractor_combiner()
 )
+print("combined features:", combined_features.shape())
 combined_features_reshaped = combined_features.view(-1, 3, 224, 224)
 
 # Prepare dataset and loader
