@@ -1,20 +1,23 @@
-from src.models_.ViT.ViT import ViT
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 import os
-import logging
+from src.models_.ViT.ViT import ViT
 from src.models_.features.extract_features_and_combine import main_extractor_combiner
 import wandb
-from src.data import data_config
+
+# Initialize Weights & Biases
+# Ensure to initialize wandb before logging in
+wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
+wandb.login(key=os.getenv("WANDB_KEY"))
 
 # Load the combined features
 combined_features, _, _, vgg19_labels = main_extractor_combiner()
 print("combined features:", combined_features.shape)
 
-# Assuming you have the combined features and labels loaded
-# Adjust the DataLoader to work with the original combined features shape
+# Assuming combined_features is a 2D tensor [batch_size, feature_length]
+# And you have the labels loaded properly
 dataset = TensorDataset(combined_features, vgg19_labels)
 feature_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
@@ -26,12 +29,8 @@ class CustomViTAdapter(nn.Module):
         self.project = nn.Linear(original_feature_size, projected_size)
 
     def forward(self, x):
+        # Directly project features without reshaping into an image format
         x = self.project(x)
-        # Reshape to match the ViT's expected input shape, here projected_size must match ViT's embedding dimension
-        batch_size = x.size(0)
-        x = x.view(
-            batch_size, 1, 224, 224
-        )  # Example reshape, adjust based on your ViT model configuration
         return x
 
 
@@ -43,37 +42,35 @@ model.load_state_dict(torch.load(vit_model_path, map_location=device))
 model.to(device)
 
 # Initialize the custom adapter
-# Here, 6144 is the size of your combined features for each sample
-adapter = CustomViTAdapter(6144)
+adapter = CustomViTAdapter(
+    6144
+)  # Here, 6144 is the size of your combined features for each sample
 adapter.to(device)
-
-# Initialize Weights & Biases
-wandb.login(key=os.getenv("WANDB_KEY"))
-wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 
 criterion = nn.CrossEntropyLoss()
 # Include the adapter parameters in the optimizer
 optimizer = optim.Adam(
-    list(model.parameters()) + list(adapter.parameters()), lr=data_config.LEARNING_RATE
-)
+    list(model.parameters()) + list(adapter.parameters()), lr=0.001
+)  # Adjust lr as per your config
 
+# Training or Evaluation Loop (Here, simplified for evaluation)
 with torch.no_grad():
     model.eval()
     adapter.eval()
     total_correct = 0
     total_samples = 0
+
     for features, labels in feature_loader:
         features, labels = features.to(device), labels.to(device)
         # Use the adapter to adjust features before passing them to the ViT model
         adapted_features = adapter(features)
         outputs = model(adapted_features)
-        _, predicted = torch.max(outputs, 1)
+        _, predicted = torch.max(outputs.data, 1)
         total_samples += labels.size(0)
         total_correct += (predicted == labels).sum().item()
 
     accuracy = 100 * total_correct / total_samples
-    logging.info(f"Accuracy: {accuracy}%")
+    print(f"Accuracy: {accuracy}%")
+    # Log to wandb
     wandb.log({"Accuracy": accuracy})
     wandb.finish()
-    print(f"Accuracy: {accuracy}%")
-    print("Done!")
