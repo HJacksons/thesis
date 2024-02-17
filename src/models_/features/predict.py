@@ -14,11 +14,11 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 # Ensure environment variables for WANDB_PROJECT and WANDB_ENTITY are correctly set
 
 # Load the combined features
-combined_features, _, _, vgg19_labels = main_extractor_combiner()
-print("combined features:", combined_features.shape)
+combined_features, _, inception_features, vgg19_labels = main_extractor_combiner()
+print("combined features:", inception_features.shape)
 
 # Create dataset and dataloader
-dataset = TensorDataset(combined_features, vgg19_labels)
+dataset = TensorDataset(inception_features, vgg19_labels)
 feature_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 
