@@ -12,7 +12,7 @@ class ViT(nn.Module):
         self.classifier = nn.Linear(self.vit.config.hidden_size, num_labels)
         self.num_labels = num_labels
 
-    def forward(self, pixel_values, labels):  # labels or labels=None
+    def forward(self, pixel_values, labels=None):  # labels or labels=None
         outputs = self.vit(pixel_values=pixel_values)
         output = self.dropout(outputs.last_hidden_state[:, 0])
         logits = self.classifier(output)
