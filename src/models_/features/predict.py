@@ -54,7 +54,7 @@ adapter.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(list(model.parameters()) + list(adapter.parameters()), lr=0.001)
 
-# Evaluation loop
+# Evaluation loop with class index output
 model.eval()
 adapter.eval()
 total_correct = 0
@@ -65,14 +65,16 @@ with torch.no_grad():
         features, labels = features.to(device), labels.to(device)
         adapted_features = adapter(features)
         outputs = model(adapted_features)
-        # Assuming outputs is a tuple where the first element contains the logits
-        logits = outputs[0]  # Adjust this line if your outputs structure is different
-        _, predicted = torch.max(logits, 1)  # Use logits directly
+        logits = outputs[0]  # Assuming the first element contains the logits
+        _, predicted = torch.max(logits, 1)
+
+        # Output predicted class indices for the first batch (as an example)
+        if total_samples == 0:  # Just for the first batch
+            print(f"Predicted class indices: {predicted.tolist()}")
+
         total_samples += labels.size(0)
         total_correct += (predicted == labels).sum().item()
 
 accuracy = 100 * total_correct / total_samples
-print(f"Accuracy: {accuracy}%")
+print(f"Overall Accuracy: {accuracy}%")
 wandb.log({"Accuracy": accuracy})
-
-wandb.finish()
