@@ -65,7 +65,9 @@ with torch.no_grad():
         features, labels = features.to(device), labels.to(device)
         adapted_features = adapter(features)
         outputs = model(adapted_features)
-        _, predicted = torch.max(outputs.data, 1)
+        # Assuming outputs is a tuple where the first element contains the logits
+        logits = outputs[0]  # Adjust this line if your outputs structure is different
+        _, predicted = torch.max(logits, 1)  # Use logits directly
         total_samples += labels.size(0)
         total_correct += (predicted == labels).sum().item()
 
