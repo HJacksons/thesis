@@ -48,7 +48,7 @@ vit_model_path = "src/models_/_saved_models/ViTModel_224_100.pth"
 model.load_state_dict(torch.load(vit_model_path, map_location=device))
 model.to(device)
 
-adapter = CustomViTAdapter(6144)  # 6144 is the size of your combined features
+adapter = CustomViTAdapter(2048)  # 6144 is the size of your combined features
 adapter.to(device)
 
 criterion = nn.CrossEntropyLoss()
