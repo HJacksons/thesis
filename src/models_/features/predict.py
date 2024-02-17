@@ -20,9 +20,10 @@ wandb.init(project=os.getenv("WANDB_PROJECT"), entity=os.getenv("WANDB_ENTITY"))
 combined_features, vgg19_features, inception_features, vgg19_labels = (
     main_extractor_combiner()
 )
+combined_features_reshaped = combined_features.view(-1, 3, 224, 224)
 
 # Prepare dataset and loader
-dataset = TensorDataset(combined_features, vgg19_labels)
+dataset = TensorDataset(combined_features_reshaped, vgg19_labels)
 feature_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 # Initialize model and optimizer
