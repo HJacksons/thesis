@@ -23,14 +23,21 @@ feature_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 
 class CustomViTAdapter(nn.Module):
-    def __init__(self, original_feature_size, projected_size=768):
+    def __init__(
+        self, original_feature_size, img_channels=3, img_height=224, img_width=224
+    ):
         super(CustomViTAdapter, self).__init__()
-        self.project = nn.Linear(original_feature_size, projected_size)
-        # Additional reshape layer might be necessary depending on your ViT model's input requirements
+        self.img_channels = img_channels
+        self.img_height = img_height
+        self.img_width = img_width
+        # Calculate the expected size after reshaping
+        expected_size = img_channels * img_height * img_width
+        self.project = nn.Linear(original_feature_size, expected_size)
 
     def forward(self, x):
         x = self.project(x)
-        # Optionally reshape x here to match your ViT model's input shape
+        # Reshape to mimic an image format: [batch_size, num_channels, height, width]
+        x = x.view(-1, self.img_channels, self.img_height, self.img_width)
         return x
 
 
